@@ -1,6 +1,5 @@
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../components/feature/Header';
 
 interface Question {
@@ -19,9 +18,41 @@ interface Survey {
 
 export default function CreatePage() {
   const navigate = useNavigate();
+  // 🔹 URL 쿼리스트링(?) 읽기 위한 훅 (예: /create?template=123)
+  const [searchParams] = useSearchParams();
+
   const [surveyTitle, setSurveyTitle] = useState('');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  // 🔹 템플릿에서 넘어온 설문 불러오기
+  useEffect(() => {
+    const templateId = searchParams.get('template'); // ?template= 값 읽기
+    if (!templateId) return; // 없으면 템플릿 없이 새 설문
+
+    const stored = localStorage.getItem(`survey_${templateId}`); // localStorage 에 저장해 둔 템플릿 설문
+    if (!stored) return;
+
+    try {
+      const parsed: Survey = JSON.parse(stored);
+
+      // 제목 세팅
+      setSurveyTitle(parsed.title || '');
+
+      // 질문 세팅 (옵션이 비어있으면 최소 1개는 있게 보정)
+      const loadedQuestions: Question[] = (parsed.questions || []).map(q => ({
+        ...q,
+        options: q.options && q.options.length > 0 ? q.options : ['']
+      }));
+
+      setQuestions(loadedQuestions);
+
+      // 템플릿으로 들어왔으면 처음에 미리보기 켜둠
+      setShowPreview(true);
+    } catch (err) {
+      console.error('템플릿 로드 중 오류', err);
+    }
+  }, [searchParams]);
 
   const addQuestion = () => {
     const newQuestion: Question = {
@@ -34,7 +65,7 @@ export default function CreatePage() {
   };
 
   const updateQuestion = (id: string, field: keyof Question, value: any) => {
-    setQuestions(questions.map(q => 
+    setQuestions(questions.map(q =>
       q.id === id ? { ...q, [field]: value } : q
     ));
   };
@@ -44,26 +75,32 @@ export default function CreatePage() {
   };
 
   const addOption = (questionId: string) => {
-    setQuestions(questions.map(q => 
+    setQuestions(questions.map(q =>
       q.id === questionId ? { ...q, options: [...q.options, ''] } : q
     ));
   };
 
   const updateOption = (questionId: string, optionIndex: number, value: string) => {
-    setQuestions(questions.map(q => 
-      q.id === questionId ? {
-        ...q,
-        options: q.options.map((opt, idx) => idx === optionIndex ? value : opt)
-      } : q
+    setQuestions(questions.map(q =>
+      q.id === questionId
+        ? {
+            ...q,
+            options: q.options.map((opt, idx) =>
+              idx === optionIndex ? value : opt
+            )
+          }
+        : q
     ));
   };
 
   const removeOption = (questionId: string, optionIndex: number) => {
-    setQuestions(questions.map(q => 
-      q.id === questionId ? {
-        ...q,
-        options: q.options.filter((_, idx) => idx !== optionIndex)
-      } : q
+    setQuestions(questions.map(q =>
+      q.id === questionId
+        ? {
+            ...q,
+            options: q.options.filter((_, idx) => idx !== optionIndex)
+          }
+        : q
     ));
   };
 
@@ -97,7 +134,7 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
       <Header />
-      
+
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -105,7 +142,9 @@ export default function CreatePage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">새 설문 만들기</h1>
-                <p className="text-gray-600">설문 제목과 문항을 추가하여 설문을 생성하세요</p>
+                <p className="text-gray-600">
+                  설문 제목과 문항을 추가하여 설문을 생성하세요
+                </p>
               </div>
               <div className="flex space-x-3">
                 <button
@@ -128,7 +167,8 @@ export default function CreatePage() {
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Editor Panel */}
-            <div className="space-y-6">
+            {/* 🔹 미리보기 모드일 때는 왼쪽 편집폼을 흐리게 하고 클릭 못하게 처리 */}
+            <div className={showPreview ? 'space-y-6 opacity-40 pointer-events-none' : 'space-y-6'}>
               {/* Survey Title */}
               <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -137,7 +177,7 @@ export default function CreatePage() {
                 <input
                   type="text"
                   value={surveyTitle}
-                  onChange={(e) => setSurveyTitle(e.target.value)}
+                  onChange={e => setSurveyTitle(e.target.value)}
                   placeholder="설문 제목을 입력하세요"
                   className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
                 />
@@ -146,9 +186,14 @@ export default function CreatePage() {
               {/* Questions */}
               <div className="space-y-4">
                 {questions.map((question, index) => (
-                  <div key={question.id} className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
+                  <div
+                    key={question.id}
+                    className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl"
+                  >
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800">문항 {index + 1}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        문항 {index + 1}
+                      </h3>
                       <button
                         onClick={() => deleteQuestion(question.id)}
                         className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110"
@@ -162,7 +207,9 @@ export default function CreatePage() {
                       <input
                         type="text"
                         value={question.question}
-                        onChange={(e) => updateQuestion(question.id, 'question', e.target.value)}
+                        onChange={e =>
+                          updateQuestion(question.id, 'question', e.target.value)
+                        }
                         placeholder="질문을 입력하세요"
                         className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
                       />
@@ -170,10 +217,18 @@ export default function CreatePage() {
 
                     {/* Question Type */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">문항 유형</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        문항 유형
+                      </label>
                       <select
                         value={question.type}
-                        onChange={(e) => updateQuestion(question.id, 'type', e.target.value)}
+                        onChange={e =>
+                          updateQuestion(
+                            question.id,
+                            'type',
+                            e.target.value as Question['type']
+                          )
+                        }
                         className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 pr-8"
                       >
                         <option value="radio">객관식 (단일 선택)</option>
@@ -185,19 +240,29 @@ export default function CreatePage() {
                     {/* Options */}
                     {(question.type === 'radio' || question.type === 'checkbox') && (
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">선택지</label>
+                        <label className="block text-sm font-medium text-gray-700">
+                          선택지
+                        </label>
                         {question.options.map((option, optionIndex) => (
                           <div key={optionIndex} className="flex items-center space-x-2">
                             <input
                               type="text"
                               value={option}
-                              onChange={(e) => updateOption(question.id, optionIndex, e.target.value)}
+                              onChange={e =>
+                                updateOption(
+                                  question.id,
+                                  optionIndex,
+                                  e.target.value
+                                )
+                              }
                               placeholder={`선택지 ${optionIndex + 1}`}
                               className="flex-1 px-4 py-2 bg-white/50 backdrop-blur-sm border border-white/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
                             />
                             {question.options.length > 1 && (
                               <button
-                                onClick={() => removeOption(question.id, optionIndex)}
+                                onClick={() =>
+                                  removeOption(question.id, optionIndex)
+                                }
                                 className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110"
                               >
                                 <i className="ri-close-line"></i>
@@ -241,12 +306,19 @@ export default function CreatePage() {
                 {surveyTitle ? (
                   <div className="space-y-6">
                     <div className="text-center mb-8">
-                      <h1 className="text-2xl font-bold text-gray-800 mb-2">{surveyTitle}</h1>
-                      <p className="text-gray-600">설문에 참여해 주셔서 감사합니다</p>
+                      <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                        {surveyTitle}
+                      </h1>
+                      <p className="text-gray-600">
+                        설문에 참여해 주셔서 감사합니다
+                      </p>
                     </div>
 
                     {questions.map((question, index) => (
-                      <div key={question.id} className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/40">
+                      <div
+                        key={question.id}
+                        className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/40"
+                      >
                         <h3 className="font-medium text-gray-800 mb-3">
                           {index + 1}. {question.question || '질문을 입력하세요'}
                         </h3>
@@ -254,9 +326,18 @@ export default function CreatePage() {
                         {question.type === 'radio' && (
                           <div className="space-y-2">
                             {question.options.map((option, optionIndex) => (
-                              <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name={`question_${question.id}`} className="text-purple-600" />
-                                <span className="text-gray-700">{option || `선택지 ${optionIndex + 1}`}</span>
+                              <label
+                                key={optionIndex}
+                                className="flex items-center space-x-3 cursor-pointer"
+                              >
+                                <input
+                                  type="radio"
+                                  name={`question_${question.id}`}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-gray-700">
+                                  {option || `선택지 ${optionIndex + 1}`}
+                                </span>
                               </label>
                             ))}
                           </div>
@@ -265,9 +346,17 @@ export default function CreatePage() {
                         {question.type === 'checkbox' && (
                           <div className="space-y-2">
                             {question.options.map((option, optionIndex) => (
-                              <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" className="text-purple-600 rounded" />
-                                <span className="text-gray-700">{option || `선택지 ${optionIndex + 1}`}</span>
+                              <label
+                                key={optionIndex}
+                                className="flex items-center space-x-3 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="text-purple-600 rounded"
+                                />
+                                <span className="text-gray-700">
+                                  {option || `선택지 ${optionIndex + 1}`}
+                                </span>
                               </label>
                             ))}
                           </div>
@@ -294,7 +383,9 @@ export default function CreatePage() {
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500/80 to-violet-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
                       <i className="ri-file-list-3-line text-white text-2xl"></i>
                     </div>
-                    <p className="text-gray-600">설문 제목을 입력하면 미리보기가 표시됩니다</p>
+                    <p className="text-gray-600">
+                      설문 제목을 입력하면 미리보기가 표시됩니다
+                    </p>
                   </div>
                 )}
               </div>
