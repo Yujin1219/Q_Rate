@@ -1,28 +1,36 @@
-
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/feature/Header';
 
+// 템플릿 하나가 어떤 데이터를 가지는지 정의
 interface Template {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  icon: string;
+  id: string; // 템플릿 고유 ID
+  title: string; // 템플릿 이름
+  description: string; // 설명 문구
+  category: string; // 비즈니스 / 이벤트 / 리서치 / HR
+  icon: string; // 리믹스 아이콘 클래스명
   questions: Array<{
-    type: 'radio' | 'checkbox' | 'text';
-    question: string;
-    options?: string[];
+    type: 'radio' | 'checkbox' | 'text'; // 질문 타입
+    question: string; // 질문 내용
+    options?: string[]; // 객관식/체크박스일 때 선택지
   }>;
 }
 
 export default function TemplatesPage() {
   const navigate = useNavigate();
 
+  // 🔹 현재 선택된 카테고리 상태
+  //   null   → 전체 보기
+  //   '비즈니스' / '이벤트' / '리서치' / 'HR' → 해당 카테고리만 보기
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // 🔹 실제 템플릿 데이터들 (하드코딩)
   const templates: Template[] = [
     {
       id: 'customer-satisfaction',
       title: '고객 만족도 조사',
-      description: '서비스나 제품에 대한 고객 만족도를 측정하는 설문입니다. 전반적인 만족도부터 세부적인 개선사항까지 종합적으로 파악할 수 있습니다.',
+      description:
+        '서비스나 제품에 대한 고객 만족도를 측정하는 설문입니다. 전반적인 만족도부터 세부적인 개선사항까지 종합적으로 파악할 수 있습니다.',
       category: '비즈니스',
       icon: 'ri-star-line',
       questions: [
@@ -45,7 +53,8 @@ export default function TemplatesPage() {
     {
       id: 'event-feedback',
       title: '이벤트 피드백',
-      description: '행사나 이벤트 참가자들의 피드백을 수집하는 설문입니다. 이벤트의 성공도를 측정하고 다음 행사 개선에 활용할 수 있습니다.',
+      description:
+        '행사나 이벤트 참가자들의 피드백을 수집하는 설문입니다. 이벤트의 성공도를 측정하고 다음 행사 개선에 활용할 수 있습니다.',
       category: '이벤트',
       icon: 'ri-calendar-event-line',
       questions: [
@@ -68,7 +77,8 @@ export default function TemplatesPage() {
     {
       id: 'product-research',
       title: '제품 리서치',
-      description: '신제품 개발이나 기존 제품 개선을 위한 시장 조사 설문입니다. 고객의 니즈와 선호도를 파악하여 제품 전략 수립에 활용하세요.',
+      description:
+        '신제품 개발이나 기존 제품 개선을 위한 시장 조사 설문입니다. 고객의 니즈와 선호도를 파악하여 제품 전략 수립에 활용하세요.',
       category: '리서치',
       icon: 'ri-search-line',
       questions: [
@@ -91,7 +101,8 @@ export default function TemplatesPage() {
     {
       id: 'employee-engagement',
       title: '직원 만족도',
-      description: '조직 내 직원들의 만족도와 참여도를 측정하는 설문입니다. 조직 문화 개선과 직원 복지 향상을 위한 데이터를 수집할 수 있습니다.',
+      description:
+        '조직 내 직원들의 만족도와 참여도를 측정하는 설문입니다. 조직 문화 개선과 직원 복지 향상을 위한 데이터를 수집할 수 있습니다.',
       category: 'HR',
       icon: 'ri-team-line',
       questions: [
@@ -113,58 +124,93 @@ export default function TemplatesPage() {
     }
   ];
 
+  // 🔹 "이 템플릿 사용하기" 눌렀을 때 실행되는 함수
   const useTemplate = (template: Template) => {
+    const now = Date.now(); // 현재 시간(ms) → 고유 id 생성용
+
+    // 템플릿 내용을 기반으로 새 설문 데이터 생성
     const newSurvey = {
-      id: Date.now().toString(),
+      id: now.toString(),
       title: template.title,
       questions: template.questions.map((q, index) => ({
-        id: `${Date.now()}_${index}`,
+        id: `${now}_${index}`, // 각 질문도 고유 id 생성
         type: q.type,
         question: q.question,
-        options: q.options || ['']
+        options: q.options || [''] // 옵션이 없으면 빈 옵션 하나라도 넣기
       })),
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0] // YYYY-MM-DD
     };
 
+    // localStorage 에 저장 (키: survey_설문ID)
     localStorage.setItem(`survey_${newSurvey.id}`, JSON.stringify(newSurvey));
+
+    // /create 페이지로 이동하면서 ?template=설문ID 쿼리 전달
     navigate(`/create?template=${newSurvey.id}`);
   };
 
-  const categories = [...new Set(templates.map(t => t.category))];
+  // 🔹 상단 카테고리 버튼 목록
+  //    ['전체', '비즈니스', '이벤트', '리서치', 'HR'] 이런 형태가 됨
+  const categories = ['전체', ...new Set(templates.map(t => t.category))];
+
+  // 🔹 선택된 카테고리에 따라 템플릿을 필터링
+  const filteredTemplates =
+    selectedCategory && selectedCategory !== '전체'
+      ? templates.filter(t => t.category === selectedCategory) // 특정 카테고리만
+      : templates; // 아무것도 선택 안 했거나 "전체" → 전체 템플릿
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
       <Header />
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          {/* Category Filter */}
+          {/* 🔹 상단 카테고리 필터 영역 */}
           <div className="mb-8">
             <div className="flex flex-wrap justify-center gap-3">
-              {categories.map(category => (
-                <span
-                  key={category}
-                  className="px-4 py-2 bg-white/30 backdrop-blur-sm text-purple-700 font-medium rounded-full border border-white/40 hover:bg-white/40 transition-all duration-300 cursor-pointer hover:scale-105"
-                >
-                  {category}
-                </span>
-              ))}
+              {categories.map(category => {
+                // 이 버튼이 현재 선택된 버튼인지 여부
+                const isActive =
+                  (category === '전체' && !selectedCategory) ||
+                  selectedCategory === category;
+
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    // "전체" 눌리면 selectedCategory 를 null 로,
+                    // 나머지는 해당 카테고리 문자열로 세팅
+                    onClick={() =>
+                      setSelectedCategory(category === '전체' ? null : category)
+                    }
+                    className={
+                      'px-4 py-2 rounded-full border backdrop-blur-sm font-medium cursor-pointer transition-all duration-300 ' +
+                      (isActive
+                        ? // 선택된 버튼 스타일
+                          'bg-white text-purple-700 border-white shadow-md scale-105'
+                        : // 선택 안 된 버튼 스타일
+                          'bg-white/30 text-purple-700 border-white/40 hover:bg-white/40 hover:scale-105')
+                    }
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Templates List */}
+          {/* 🔹 템플릿 카드 리스트 */}
           <div className="space-y-6">
-            {templates.map(template => (
+            {filteredTemplates.map(template => (
               <div
                 key={template.id}
                 className="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group"
               >
                 <div className="flex items-start gap-6">
-                  {/* Icon */}
+                  {/* 아이콘 박스 */}
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500/80 to-violet-600/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 flex-shrink-0">
                     <i className={`${template.icon} text-white text-2xl`}></i>
                   </div>
 
-                  {/* Content */}
+                  {/* 템플릿 내용 */}
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -182,18 +228,27 @@ export default function TemplatesPage() {
                       </div>
                     </div>
 
-                    {/* Questions Preview */}
+                    {/* 질문 미리보기 (앞 2개만) */}
                     <div className="mb-6">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">포함된 질문 미리보기:</h4>
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">
+                        포함된 질문 미리보기:
+                      </h4>
                       <div className="space-y-2">
                         {template.questions.slice(0, 2).map((q, idx) => (
-                          <div key={idx} className="flex items-center gap-3 text-sm text-gray-600">
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 text-sm text-gray-600"
+                          >
                             <span className="w-6 h-6 bg-white/40 backdrop-blur-sm text-purple-600 rounded-full flex items-center justify-center text-xs font-medium border border-white/50">
                               {idx + 1}
                             </span>
                             <span className="flex-1">{q.question}</span>
                             <span className="text-xs px-2 py-1 bg-white/40 backdrop-blur-sm text-gray-600 rounded-md border border-white/50">
-                              {q.type === 'radio' ? '객관식' : q.type === 'checkbox' ? '복수선택' : '주관식'}
+                              {q.type === 'radio'
+                                ? '객관식'
+                                : q.type === 'checkbox'
+                                ? '복수선택'
+                                : '주관식'}
                             </span>
                           </div>
                         ))}
@@ -205,8 +260,9 @@ export default function TemplatesPage() {
                       </div>
                     </div>
 
-                    {/* Actions */}
+                    {/* 카드 하단 버튼들 */}
                     <div className="flex items-center gap-3">
+                      {/* 이 템플릿 사용하기 → /create 로 연결 */}
                       <button
                         onClick={() => useTemplate(template)}
                         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-lg cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
@@ -214,10 +270,13 @@ export default function TemplatesPage() {
                         <i className="ri-edit-line mr-2"></i>
                         이 템플릿 사용하기
                       </button>
+
+                      {/* (추후 모달이나 별도 미리보기 페이지로 확장 가능) */}
                       <button className="inline-flex items-center px-4 py-3 bg-white/30 backdrop-blur-sm hover:bg-white/40 text-purple-700 font-medium rounded-lg cursor-pointer transition-all duration-300 border border-white/30 hover:scale-105">
                         <i className="ri-eye-line mr-2"></i>
                         미리보기
                       </button>
+
                       <div className="flex items-center text-sm text-gray-600 ml-auto">
                         <i className="ri-question-line mr-1"></i>
                         {template.questions.length}개 문항
@@ -229,12 +288,14 @@ export default function TemplatesPage() {
             ))}
           </div>
 
-          {/* Custom Template CTA */}
+          {/* 🔹 "빈 양식으로 시작하기" CTA 카드 */}
           <div className="mt-12 bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-xl text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500/80 to-purple-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 border border-white/20">
               <i className="ri-add-circle-line text-white text-2xl"></i>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">원하는 템플릿이 없나요?</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              원하는 템플릿이 없나요?
+            </h2>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               빈 양식으로 시작하여 나만의 맞춤형 설문을 만들어보세요
             </p>
