@@ -3,9 +3,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/feature/Header';
 import PageHeader from '../../components/feature/PageHeader';
+import SurveyTitleInput from '../../components/survey/SurveyTitleInput';
+import QuestionEditor from '../../components/survey/QuestionEditor';
+import SurveyPreview from '../../components/survey/SurveyPreview';
 
 // 설문 문항의 타입 정의
-interface Question {
+export interface Question {
   id: string;  // 문항의 고유 식별자
   type: 'radio' | 'checkbox' | 'text';  // 문항 유형: 단일선택/복수선택/주관식
   question: string;  // 질문 내용
@@ -13,7 +16,7 @@ interface Question {
 }
 
 // 설문 전체의 타입 정의
-interface Survey {
+export interface Survey {
   id: string;  // 설문의 고유 식별자
   title: string;  // 설문 제목
   questions: Question[];  // 설문 문항들의 배열
@@ -171,106 +174,32 @@ export default function CreatePage() {
               저장하기
             </button>
           }
-        />ㄴ
+        />
           {/* 2열 그리드 레이아웃: 편집 패널 / 미리보기 패널 */}
           <div className="grid lg:grid-cols-2 gap-8">
             {/* 왼쪽: 편집 패널 */}
             <div className="space-y-6">
               {/* 설문 제목 입력 섹션 */}
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  설문 제목
-                </label>
-                <input
-                  type="text"
-                  value={surveyTitle}
-                  onChange={(e) => setSurveyTitle(e.target.value)}
-                  placeholder="설문 제목을 입력하세요"
-                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
-                />
-              </div>
+              <div className="space-y-6">
+              <SurveyTitleInput 
+                value={surveyTitle} 
+                onChange={setSurveyTitle} 
+              />
 
               {/* 문항 목록 섹션 */}
               <div className="space-y-4">
                 {/* 각 문항을 순회하며 렌더링 */}
                 {questions.map((question, index) => (
-                  <div key={question.id} className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
-                    {/* 문항 헤더: 번호와 삭제 버튼 */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800">문항 {index + 1}</h3>
-                      <button
-                        onClick={() => deleteQuestion(question.id)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110"
-                      >
-                        <i className="ri-delete-bin-line text-lg"></i>
-                      </button>
-                    </div>
-
-                    {/* 질문 내용 입력 */}
-                    <div className="mb-4">
-                      <input
-                        type="text"
-                        value={question.question}
-                        onChange={(e) => updateQuestion(question.id, 'question', e.target.value)}
-                        placeholder="질문을 입력하세요"
-                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
-                      />
-                    </div>
-
-                    {/* 문항 유형 선택 드롭다운 */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">문항 유형</label>
-                      <select
-                        value={question.type}
-                        onChange={(e) => updateQuestion(question.id, 'type', e.target.value)}
-                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 pr-8"
-                      >
-                        <option value="radio">객관식 (단일 선택)</option>
-                        <option value="checkbox">복수 선택</option>
-                        <option value="text">주관식</option>
-                      </select>
-                    </div>
-
-                    {/* 객관식 문항(radio/checkbox)인 경우 선택지 입력 섹션 표시 */}
-                    {(question.type === 'radio' || question.type === 'checkbox') && (
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">선택지</label>
-                        
-                        {/* 각 선택지를 순회하며 렌더링 */}
-                        {question.options.map((option, optionIndex) => (
-                          <div key={optionIndex} className="flex items-center space-x-2">
-                            {/* 선택지 내용 입력 */}
-                            <input
-                              type="text"
-                              value={option}
-                              onChange={(e) => updateOption(question.id, optionIndex, e.target.value)}
-                              placeholder={`선택지 ${optionIndex + 1}`}
-                              className="flex-1 px-4 py-2 bg-white/50 backdrop-blur-sm border border-white/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500"
-                            />
-                            
-                            {/* 선택지 삭제 버튼 (선택지가 2개 이상일 때만 표시) */}
-                            {question.options.length > 1 && (
-                              <button
-                                onClick={() => removeOption(question.id, optionIndex)}
-                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110"
-                              >
-                                <i className="ri-close-line"></i>
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        
-                        {/* 선택지 추가 버튼 */}
-                        <button
-                          onClick={() => addOption(question.id)}
-                          className="inline-flex items-center px-4 py-2 bg-white/30 backdrop-blur-sm hover:bg-white/40 text-purple-700 font-medium rounded-lg cursor-pointer whitespace-nowrap transition-all duration-300 border border-white/30 hover:scale-105"
-                        >
-                          <i className="ri-add-line mr-2"></i>
-                          선택지 추가
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <QuestionEditor
+                    key={question.id}
+                    question={question}
+                    index={index}
+                    onUpdate={updateQuestion}
+                    onDelete={deleteQuestion}
+                    onAddOption={addOption}
+                    onUpdateOption={updateOption}
+                    onRemoveOption={removeOption}
+                  />
                 ))}
 
                 {/* 새 문항 추가 버튼 */}
@@ -296,78 +225,16 @@ export default function CreatePage() {
                 </div>
 
                 {/* 설문 제목이 있을 때: 실제 설문 미리보기 표시 */}
-                {surveyTitle ? (
-                  <div className="space-y-6">
-                    {/* 설문 제목 및 안내 문구 */}
-                    <div className="text-center mb-8">
-                      <h1 className="text-2xl font-bold text-gray-800 mb-2">{surveyTitle}</h1>
-                      <p className="text-gray-600">설문에 참여해 주셔서 감사합니다</p>
-                    </div>
-
-                    {/* 각 문항을 미리보기 형태로 렌더링 */}
-                    {questions.map((question, index) => (
-                      <div key={question.id} className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                        {/* 문항 번호와 질문 */}
-                        <h3 className="font-medium text-gray-800 mb-3">
-                          {index + 1}. {question.question || '질문을 입력하세요'}
-                        </h3>
-
-                        {/* 단일 선택 문항 미리보기 */}
-                        {question.type === 'radio' && (
-                          <div className="space-y-2">
-                            {question.options.map((option, optionIndex) => (
-                              <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name={`question_${question.id}`} className="text-purple-600" />
-                                <span className="text-gray-700">{option || `선택지 ${optionIndex + 1}`}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* 복수 선택 문항 미리보기 */}
-                        {question.type === 'checkbox' && (
-                          <div className="space-y-2">
-                            {question.options.map((option, optionIndex) => (
-                              <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" className="text-purple-600 rounded" />
-                                <span className="text-gray-700">{option || `선택지 ${optionIndex + 1}`}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* 주관식 문항 미리보기 */}
-                        {question.type === 'text' && (
-                          <textarea
-                            placeholder="답변을 입력하세요"
-                            rows={3}
-                            className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500 resize-none"
-                          />
-                        )}
-                      </div>
-                    ))}
-
-                    {/* 문항이 있을 때 제출 버튼 표시 */}
-                    {questions.length > 0 && (
-                      <button className="w-full py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm text-white font-medium rounded-xl cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg border border-white/20">
-                        응답 제출하기
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  // 설문 제목이 없을 때: 안내 메시지 표시
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500/80 to-violet-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
-                      <i className="ri-file-list-3-line text-white text-2xl"></i>
-                    </div>
-                    <p className="text-gray-600">설문 제목을 입력하면 미리보기가 표시됩니다</p>
-                  </div>
-                )}
+               <SurveyPreview 
+                  surveyTitle={surveyTitle} 
+                  questions={questions} 
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </div>
   );
-}
+};
