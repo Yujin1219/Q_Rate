@@ -48,8 +48,16 @@ export default function SurveyPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0); // 현재 질문 인덱스
   const [isSubmitted, setIsSubmitted] = useState(false); // 제출 완료 여부
 
-  // 컴포넌트 마운트 시 localStorage에서 설문 데이터 불러오기
+  // 컴포넌트 마운트 시 로그인 확인 및 설문 데이터 불러오기
   useEffect(() => {
+    // 로그인 확인
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+
     if (id) {
       const savedSurvey = localStorage.getItem(`survey_${id}`);
       if (savedSurvey) {
@@ -62,7 +70,7 @@ export default function SurveyPage() {
         })));
       }
     }
-  }, [id]);
+  }, [id, navigate]);
 
   // 응답 업데이트 함수
   const updateResponse = (questionId: string, answer: string | string[]) => {
