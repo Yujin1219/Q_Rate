@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'; // 기능 추가
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/logo.png";
 
 export default function Header() {
   const location = useLocation();
@@ -37,11 +37,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* 로고 */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          <Link to="/" className="flex items-center space-x-1 group">
             <img
               src={logo}
               alt="Q+rate Logo"
-              className="w-10 h-10 object-contain"
+              className="w-12 h-12 object-contain"
             />
             <div className="flex flex-col">
               <span
