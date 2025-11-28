@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/feature/Header';
+import ProgressBar from '../../components/survey/ProgressBar';
+import QuestionCard from '../../components/survey/QuestionCard';
+import NavigationButtons from '../../components/survey/NavigationButtons';
+import EmptyState from '../../components/survey/EmptyState';
+import SubmitSuccess from '../../components/survey/SubmitSuccess';
 
-// Interfaces
+// 인터페이스 정의
 interface Question {
   id: string;
-  type: 'radio' | 'checkbox' | 'text';
+  type: 'radio' | 'checkbox' | 'text'; // 질문 유형: 단일선택, 다중선택, 텍스트
   question: string;
   options: string[];
 }
@@ -19,66 +24,95 @@ interface Survey {
 
 interface Response {
   questionId: string;
-  answer: string | string[];
+  answer: string | string[]; // 단일 답변(string) 또는 다중 답변(string[])
+}
+
+interface ResponseData {
+  surveyId: string;
+  responses: Response[];
+  respondent: {
+    gender: string;  // 성별
+    age: string;     // 나이대
+  };
+  submittedAt: string;
 }
 
 export default function SurveyPage() {
+  // URL 파라미터에서 설문 ID 가져오기
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [survey, setSurvey] = useState<Survey | null>(null);
-  const [responses, setResponses] = useState<Response[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // 상태 관리
+  const [survey, setSurvey] = useState<Survey | null>(null); // 설문 데이터
+  const [responses, setResponses] = useState<Response[]>([]); // 사용자 응답
+  const [currentQuestion, setCurrentQuestion] = useState(0); // 현재 질문 인덱스
+  const [isSubmitted, setIsSubmitted] = useState(false); // 제출 완료 여부
 
+  // 컴포넌트 마운트 시 로그인 확인 및 설문 데이터 불러오기
   useEffect(() => {
+    // 로그인 확인
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+
     if (id) {
       const savedSurvey = localStorage.getItem(`survey_${id}`);
       if (savedSurvey) {
         const surveyData = JSON.parse(savedSurvey);
         setSurvey(surveyData);
-        // 응답 초기화
+        // 각 질문에 대한 빈 응답 초기화
         setResponses(surveyData.questions.map((q: Question) => ({
           questionId: q.id,
-          answer: q.type === 'checkbox' ? [] : ''
+          answer: q.type === 'checkbox' ? [] : '' // 체크박스는 배열, 나머지는 문자열
         })));
       }
     }
-  }, [id]);
+  }, [id, navigate]);
 
+  // 응답 업데이트 함수
   const updateResponse = (questionId: string, answer: string | string[]) => {
     setResponses(prev => prev.map(r => 
       r.questionId === questionId ? { ...r, answer } : r
     ));
   };
 
+  // 라디오 버튼 변경 핸들러
   const handleRadioChange = (questionId: string, value: string) => {
     updateResponse(questionId, value);
   };
 
+  // 체크박스 변경 핸들러
   const handleCheckboxChange = (questionId: string, value: string, checked: boolean) => {
     const currentResponse = responses.find(r => r.questionId === questionId);
     const currentAnswers = Array.isArray(currentResponse?.answer) ? currentResponse.answer : [];
     
     if (checked) {
+      // 체크됨: 배열에 추가
       updateResponse(questionId, [...currentAnswers, value]);
     } else {
+      // 체크 해제: 배열에서 제거
       updateResponse(questionId, currentAnswers.filter(a => a !== value));
     }
   };
 
+  // 텍스트 입력 핸들러
   const handleTextChange = (questionId: string, value: string) => {
     updateResponse(questionId, value);
   };
 
+  // 설문 제출 함수
   const submitSurvey = () => {
     if (!survey || !id) return;
 
-    // 응답 검증
+    // 미응답 질문 검증
     const unansweredQuestions = responses.filter(r => {
       if (Array.isArray(r.answer)) {
-        return r.answer.length === 0;
+        return r.answer.length === 0; // 체크박스: 선택 항목 없음
       }
-      return !r.answer || r.answer.trim() === '';
+      return !r.answer || r.answer.trim() === ''; // 텍스트/라디오: 빈 값
     });
 
     if (unansweredQuestions.length > 0) {
@@ -86,13 +120,22 @@ export default function SurveyPage() {
       return;
     }
 
-    // 응답 저장
-    const responseData = {
+    // localStorage에서 로그인한 사용자 정보 가져오기
+    const userInfoString = localStorage.getItem('userInfo');
+    const userInfo = userInfoString ? JSON.parse(userInfoString) : null;
+
+    // 응답 데이터 생성 (사용자 정보 포함)
+    const responseData: ResponseData = {
       surveyId: id,
       responses,
+      respondent: {
+        gender: userInfo?.gender || '미지정',
+        age: userInfo?.age || '미지정'
+      },
       submittedAt: new Date().toISOString()
     };
 
+    // localStorage에 응답 저장 (기존 응답에 추가)
     const existingResponses = localStorage.getItem(`responses_${id}`);
     const allResponses = existingResponses ? JSON.parse(existingResponses) : [];
     allResponses.push(responseData);
@@ -101,219 +144,72 @@ export default function SurveyPage() {
     setIsSubmitted(true);
   };
 
+  // 다음 질문으로 이동
   const nextQuestion = () => {
     if (survey && currentQuestion < survey.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
+  // 이전 질문으로 이동
   const prevQuestion = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
   };
 
+  // 설문을 찾을 수 없는 경우
   if (!survey) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
-        <Header />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-          <div className="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-xl text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500/80 to-violet-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
-              <i className="ri-error-warning-line text-white text-2xl"></i>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">설문을 찾을 수 없습니다</h2>
-            <p className="text-gray-600 mb-4">요청하신 설문이 존재하지 않습니다.</p>
-            <button
-              onClick={() => navigate('/')}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
-            >
-              <i className="ri-home-line mr-2"></i>
-              홈으로 돌아가기
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <EmptyState onNavigateHome={() => navigate('/')} />;
   }
 
+  // 설문 제출 완료 화면
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
-        <Header />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-          <div className="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-xl text-center max-w-md">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500/80 to-emerald-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 border border-white/20">
-              <i className="ri-check-line text-white text-3xl"></i>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">응답이 제출되었습니다!</h2>
-            <p className="text-gray-600 mb-6">
-              소중한 의견을 주셔서 감사합니다. 
-              응답 결과는 설문 관리자가 확인할 수 있습니다.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => navigate('/')}
-                className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-white/30 backdrop-blur-sm hover:bg-white/40 text-purple-700 font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 border border-white/30 hover:scale-105"
-              >
-                <i className="ri-home-line mr-2"></i>
-                홈으로
-              </button>
-              <button
-                onClick={() => navigate(`/results/${id}`)}
-                className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
-              >
-                <i className="ri-bar-chart-line mr-2"></i>
-                결과 보기
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SubmitSuccess
+        onNavigateHome={() => navigate('/')}
+        onViewResults={() => navigate(`/results/${id}`)}
+      />
     );
   }
 
-  const progress = ((currentQuestion + 1) / survey.questions.length) * 100;
+  // 진행률 계산
+  // const progress = ((currentQuestion + 1) / survey.questions.length) * 100;
   const currentQ = survey.questions[currentQuestion];
   const currentResponse = responses.find(r => r.questionId === currentQ.id);
 
+  // 설문 진행 화면
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
       <Header />
       
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          {/* Header */}
-          <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/30 shadow-xl">
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{survey.title}</h1>
-              <p className="text-gray-600">설문에 참여해 주셔서 감사합니다</p>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>진행률</span>
-                <span>{currentQuestion + 1} / {survey.questions.length}</span>
-              </div>
-              <div className="w-full bg-white/40 backdrop-blur-sm rounded-full h-3 border border-white/50">
-                <div
-                  className="bg-gradient-to-r from-purple-500 to-violet-600 h-3 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
+          {/* 진행률 바 */}
+          <ProgressBar
+            current={currentQuestion}
+            total={survey.questions.length}
+            title={survey.title}
+          />
 
-          {/* Question Card */}
-          <div className="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-xl mb-8">
-            <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500/80 to-violet-600/80 backdrop-blur-sm rounded-full flex items-center justify-center mr-4 border border-white/20">
-                  <span className="text-white font-semibold">{currentQuestion + 1}</span>
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800 flex-1">
-                  {currentQ.question}
-                </h2>
-              </div>
-            </div>
+          {/* 질문 카드 */}
+          <QuestionCard
+            question={currentQ}
+            questionNumber={currentQuestion + 1}
+            answer={currentResponse?.answer || (currentQ.type === 'checkbox' ? [] : '')}
+            onRadioChange={handleRadioChange}
+            onCheckboxChange={handleCheckboxChange}
+            onTextChange={handleTextChange}
+          />
 
-            <div className="space-y-4">
-              {currentQ.type === 'radio' && (
-                <div className="space-y-3">
-                  {currentQ.options.map((option, idx) => (
-                    <label
-                      key={idx}
-                      className="flex items-center p-4 bg-white/30 backdrop-blur-sm rounded-xl border border-white/40 hover:bg-white/40 transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
-                    >
-                      <input
-                        type="radio"
-                        name={`question_${currentQ.id}`}
-                        value={option}
-                        checked={currentResponse?.answer === option}
-                        onChange={(e) => handleRadioChange(currentQ.id, e.target.value)}
-                        className="w-5 h-5 text-purple-600 mr-4"
-                      />
-                      <span className="text-gray-700 font-medium group-hover:text-purple-700 transition-colors duration-300">
-                        {option}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {currentQ.type === 'checkbox' && (
-                <div className="space-y-3">
-                  {currentQ.options.map((option, idx) => (
-                    <label
-                      key={idx}
-                      className="flex items-center p-4 bg-white/30 backdrop-blur-sm rounded-xl border border-white/40 hover:bg-white/40 transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
-                    >
-                      <input
-                        type="checkbox"
-                        value={option}
-                        checked={Array.isArray(currentResponse?.answer) && currentResponse.answer.includes(option)}
-                        onChange={(e) => handleCheckboxChange(currentQ.id, option, e.target.checked)}
-                        className="w-5 h-5 text-purple-600 rounded mr-4"
-                      />
-                      <span className="text-gray-700 font-medium group-hover:text-purple-700 transition-colors duration-300">
-                        {option}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {currentQ.type === 'text' && (
-                <div>
-                  <textarea
-                    value={typeof currentResponse?.answer === 'string' ? currentResponse.answer : ''}
-                    onChange={(e) => handleTextChange(currentQ.id, e.target.value)}
-                    placeholder="답변을 입력하세요..."
-                    rows={6}
-                    className="w-full px-6 py-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-500 resize-none"
-                  />
-                  <div className="text-right text-sm text-gray-500 mt-2">
-                    {typeof currentResponse?.answer === 'string' ? currentResponse.answer.length : 0} / 500자
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={prevQuestion}
-              disabled={currentQuestion === 0}
-              className={`inline-flex items-center px-6 py-3 font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 border ${
-                currentQuestion === 0
-                  ? 'bg-gray-200/50 text-gray-400 border-gray-200/50 cursor-not-allowed'
-                  : 'bg-white/30 backdrop-blur-sm hover:bg-white/40 text-purple-700 border-white/30 hover:scale-105'
-              }`}
-            >
-              <i className="ri-arrow-left-line mr-2"></i>
-              이전
-            </button>
-
-            {currentQuestion === survey.questions.length - 1 ? (
-              <button
-                onClick={submitSurvey}
-                className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-semibold rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
-              >
-                <i className="ri-send-plane-line mr-2"></i>
-                응답 제출하기
-              </button>
-            ) : (
-              <button
-                onClick={nextQuestion}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
-              >
-                다음
-                <i className="ri-arrow-right-line ml-2"></i>
-              </button>
-            )}
-          </div>
+          {/* 네비게이션 버튼 */}
+          <NavigationButtons
+            currentQuestion={currentQuestion}
+            totalQuestions={survey.questions.length}
+            onPrev={prevQuestion}
+            onNext={nextQuestion}
+            onSubmit={submitSurvey}
+          />
         </div>
       </div>
     </div>
