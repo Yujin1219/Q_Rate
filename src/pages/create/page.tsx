@@ -6,6 +6,7 @@ import PageHeader from '../../components/feature/PageHeader';
 import SurveyTitleInput from '../../components/survey/SurveyTitleInput';
 import QuestionEditor from '../../components/survey/QuestionEditor';
 import SurveyPreview from '../../components/survey/SurveyPreview';
+import SurveyShareModal from '../../components/survey/SurveyShareModal';
 
 // 설문 문항의 타입 정의
 export interface Question {
@@ -39,7 +40,11 @@ export default function CreatePage() {
   // 설문 문항들의 배열 상태 관리
   const [questions, setQuestions] = useState<Question[]>([]);
   
-  const [showPreview, setShowPreview] = useState(false);
+  // 공유 모달 표시 여부
+  const [showShareModal, setShowShareModal] = useState(false);
+  
+  // 생성된 설문 ID (모달에 전달용)
+  const [createdSurveyId, setCreatedSurveyId] = useState<string>('');
 
   // 🔹 템플릿에서 넘어온 설문 불러오기
   useEffect(() => {
@@ -65,7 +70,6 @@ export default function CreatePage() {
       setQuestions(loadedQuestions);
 
       // 템플릿으로 들어왔으면 처음에 미리보기 켜둠
-      setShowPreview(true);
     } catch (err) {
       console.error('템플릿 로드 중 오류', err);
     }
@@ -154,9 +158,10 @@ export default function CreatePage() {
   };
 
   /**
-   * 설문을 저장하고 메인 페이지로 이동하는 함수
+   * 설문을 저장하는 함수
    * - 유효성 검사 수행
    * - localStorage에 설문 데이터 저장
+   * - 설문 생성 완료 모달 표시
    */
   const saveSurvey = () => {
     // 설문 제목이 비어있는지 검사
@@ -185,8 +190,9 @@ export default function CreatePage() {
     }
 
     // 새 설문 객체 생성
+    const surveyId = Date.now().toString();  // 고유 ID 생성
     const newSurvey: Survey = {
-      id: Date.now().toString(),  // 고유 ID 생성
+      id: surveyId,
       title: surveyTitle,
       questions,
       createdAt: new Date().toISOString().split('T')[0],  // YYYY-MM-DD 형식으로 날짜 저장
@@ -204,10 +210,11 @@ export default function CreatePage() {
     localStorage.setItem('surveys', JSON.stringify(surveys));
     
     // 개별 설문도 별도로 저장 (설문 상세 조회용)
-    localStorage.setItem(`survey_${newSurvey.id}`, JSON.stringify(newSurvey));
+    localStorage.setItem(`survey_${surveyId}`, JSON.stringify(newSurvey));
 
-    // 메인 페이지로 이동
-    navigate('/');
+    // 생성된 설문 ID를 상태에 저장하고 모달 표시
+    setCreatedSurveyId(surveyId);
+    setShowShareModal(true);
   };
 
   return (
@@ -288,6 +295,18 @@ export default function CreatePage() {
           </div>
         </div>
       </div>
+
+      {/* 설문 공유 모달 */}
+      <SurveyShareModal
+        isOpen={showShareModal}
+        surveyTitle={surveyTitle}
+        surveyId={createdSurveyId}
+        onClose={() => {
+          setShowShareModal(false);
+          // 모달 닫을 때 홈으로 이동
+          navigate('/');
+        }}
+      />
     </div>
   );
 };
