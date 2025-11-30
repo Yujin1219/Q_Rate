@@ -27,39 +27,43 @@ export default function FeaturesSection() {
 
   return (
     <div className="py-20 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-6xl mx-auto text-center mb-16">
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-4">
-          왜 Q+rate를 선택해야 할까요?
-        </h2>
-        <p className="text-xl text-gray-600">
-          전문적인 설문 조사를 위한 완벽한 솔루션
-        </p>
-      </div>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-4">
+            왜 Q+rate를 선택해야 할까요?
+          </h2>
+          <p className="text-xl text-gray-600">
+            전문적인 설문 조사를 위한 완벽한 솔루션
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {features.map((f, idx) => (
-          <div
-            key={idx}
-            className="relative backdrop-blur-xl bg-white/60 rounded-3xl p-8 border border-white/40 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((f, idx) => (
             <div
-              className={`relative w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg ${f.shadow} overflow-hidden`}
+              key={idx}
+              className="relative backdrop-blur-xl bg-white/60 rounded-3xl p-8 border border-white/40 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 overflow-hidden group"
             >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${f.gradient}`}
-              ></div>
-              <div className="absolute inset-0 bg-gradient-to-tl from-white/30 to-transparent"></div>
-              <i className={`${f.icon} text-white text-3xl relative z-10`}></i>
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
-              {f.title}
-            </h3>
-            <p className="text-gray-600 text-lg">{f.description}</p>
-          </div>
-        ))}
+              <div
+                className={`relative w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg ${f.shadow} overflow-hidden`}
+              >
+                <div
+                  className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${f.gradient}`}
+                ></div>
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tl from-white/30 to-transparent"></div>
+                <i
+                  className={`${f.icon} text-white text-3xl relative z-10`}
+                ></i>
+              </div>
+
+              <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                {f.title}
+              </h3>
+              <p className="text-gray-600 text-lg">{f.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
