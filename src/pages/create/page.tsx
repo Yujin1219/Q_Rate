@@ -13,6 +13,7 @@ export interface Question {
   type: 'radio' | 'checkbox' | 'text';  // 문항 유형: 단일선택/복수선택/주관식
   question: string;  // 질문 내용
   options: string[];  // 선택지 배열 (객관식 문항에 사용)
+  required: boolean;  // 필수 응답 여부
 }
 
 
@@ -57,7 +58,8 @@ export default function CreatePage() {
       // 질문 세팅 (옵션이 비어있으면 최소 1개는 있게 보정)
       const loadedQuestions: Question[] = (parsed.questions || []).map(q => ({
         ...q,
-        options: q.options && q.options.length > 0 ? q.options : ['']
+        options: q.options && q.options.length > 0 ? q.options : [''],
+        required: q.required !== undefined ? q.required : true  // required 필드가 없으면 기본값 true
       }));
 
       setQuestions(loadedQuestions);
@@ -73,13 +75,15 @@ export default function CreatePage() {
    * 새로운 문항을 추가하는 함수
    * - 기본값으로 단일선택(radio) 타입의 빈 문항을 생성
    * - 현재 시간을 id로 사용하여 고유성 보장
+   * - 기본값으로 필수 응답 설정
    */
   const addQuestion = () => {
     const newQuestion: Question = {
       id: Date.now().toString(),  // 현재 타임스탬프를 문자열로 변환하여 고유 ID 생성
       type: 'radio',  // 기본값: 단일 선택
       question: '',  // 빈 질문
-      options: ['']  // 빈 선택지 하나로 시작
+      options: [''],  // 빈 선택지 하나로 시작
+      required: true  // 기본값: 필수 응답
     };
     // 기존 문항 배열에 새 문항 추가
     setQuestions([...questions, newQuestion]);

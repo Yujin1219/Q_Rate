@@ -29,9 +29,12 @@ export default function SurveyPreview({ surveyTitle, questions }: SurveyPreviewP
       {/* 문항 미리보기 */}
       {questions.map((question, index) => (
         <div key={question.id} className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-          <h3 className="font-medium text-gray-800 mb-3">
-            {index + 1}. {question.question || '질문을 입력하세요'}
-          </h3>
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="font-medium text-gray-800">
+              {index + 1}. {question.question || '질문을 입력하세요'}
+              {question.required && <span className="text-red-500 ml-1">*</span>}
+            </h3>
+          </div>
 
           {question.type === 'radio' && (
             <div className="space-y-2">

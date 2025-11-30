@@ -7,6 +7,7 @@ interface Question {
   type: 'radio' | 'checkbox' | 'text';
   question: string;
   options: string[];
+  required: boolean;
 }
 
 interface QuestionCardProps {
@@ -36,6 +37,7 @@ export default function QuestionCard({
           </div>
           <h2 className="text-xl font-semibold text-gray-800 flex-1">
             {question.question}
+            {question.required && <span className="text-red-500 ml-1">*</span>}
           </h2>
         </div>
       </div>
