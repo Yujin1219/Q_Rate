@@ -89,8 +89,8 @@ export default function UserInfoForm({ userInfo, onSave }: UserInfoFormProps) {
               <input
                 type="email"
                 value={editForm.email}
-                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white/60 backdrop-blur-xl border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400/50 transition-all duration-300 text-gray-800 shadow-inner"
+                disabled
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none text-gray-800 shadow-inner"
               />
             ) : (
               <div className="px-4 py-3 bg-white/40 backdrop-blur-xl border border-white/30 rounded-xl text-gray-800">
