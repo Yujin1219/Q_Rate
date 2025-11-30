@@ -34,11 +34,8 @@ export default function OverviewSection({
               </span>
             </div>
           </div>
-          <div className="flex space-x-3">
-            <button className="inline-flex items-center px-6 py-3 bg-white/30 backdrop-blur-sm hover:bg-white/40 text-purple-700 font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 border border-white/30 hover:scale-105">
-              <i className="ri-share-line mr-2"></i>
-              공유하기
-            </button>
+
+          <div className="flex">
             <button
               onClick={async () => {
                 const content = document.getElementById("results-content");
@@ -63,6 +60,7 @@ export default function OverviewSection({
                     format: "a4",
                     orientation: "p",
                   });
+
                   const pdfWidth = pdf.internal.pageSize.getWidth();
                   const pdfHeight = pdf.internal.pageSize.getHeight();
 
