@@ -1,4 +1,15 @@
 import type { ResponseData, ChartData } from "../../types/survey";
+import {
+  ResponsiveContainer,
+  BarChart as ReBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as ReTooltip,
+  Cell,
+  PieChart as RePieChart,
+  Pie,
+} from "recharts";
 
 interface BarChartProps {
   chartData: ChartData[];
@@ -6,8 +17,18 @@ interface BarChartProps {
 
 // 객관식 차트 컴포넌트 - 막대, 파이, 통계
 export function BarChart({ chartData }: BarChartProps) {
+  const barColor = "#7C3AED";
   return (
-    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 border border-white/40">
+    <div className="results-charts bg-white/30 backdrop-blur-sm rounded-xl p-6 border border-white/40">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .results-charts .recharts-surface *:focus { outline: none !important; }
+            .results-charts .recharts-wrapper *:focus { outline: none !important; }
+            .results-charts svg:focus { outline: none !important; }
+          `,
+        }}
+      />
       <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
         <i className="ri-bar-chart-line mr-2"></i>
         막대 차트
@@ -19,11 +40,38 @@ export function BarChart({ chartData }: BarChartProps) {
               <span className="truncate">{item.label}</span>
               <span className="ml-2">{item.value}명</span>
             </div>
-            <div className="w-full bg-white/40 backdrop-blur-sm rounded-full h-3 border border-white/50">
-              <div
-                className="bg-gradient-to-r from-purple-500 to-violet-600 h-3 rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${item.percentage}%` }}
-              ></div>
+            <div className="w-full bg-white/40 backdrop-blur-sm rounded-full h-6 border border-white/50 flex items-center">
+              <div className="w-full px-0">
+                <ResponsiveContainer width="100%" height={28}>
+                  <ReBarChart
+                    data={[{ name: item.label, value: item.percentage }]}
+                    layout="vertical"
+                    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                    barCategoryGap={0}
+                    barGap={0}
+                  >
+                    <XAxis
+                      type="number"
+                      dataKey="value"
+                      domain={[0, 100]}
+                      hide
+                    />
+                    <YAxis type="category" dataKey="name" hide width={0} />
+                    <ReTooltip
+                      contentStyle={{ display: "none" }}
+                      cursor={false}
+                    />
+                    <Bar
+                      dataKey="value"
+                      isAnimationActive={true}
+                      radius={[12, 12, 12, 12]}
+                      barSize={12}
+                    >
+                      <Cell fill={barColor} />
+                    </Bar>
+                  </ReBarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
             <div className="text-xs text-gray-600 mt-1">{item.percentage}%</div>
           </div>
@@ -40,7 +88,16 @@ interface PieChartProps {
 
 export function PieChart({ chartData, responses }: PieChartProps) {
   return (
-    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 border border-white/40">
+    <div className="results-charts bg-white/30 backdrop-blur-sm rounded-xl p-6 border border-white/40">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .results-charts .recharts-surface *:focus { outline: none !important; }
+            .results-charts .recharts-wrapper *:focus { outline: none !important; }
+            .results-charts svg:focus { outline: none !important; }
+          `,
+        }}
+      />
       <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
         <i className="ri-pie-chart-line mr-2"></i>
         파이 차트
@@ -48,173 +105,35 @@ export function PieChart({ chartData, responses }: PieChartProps) {
       <div className="flex items-center justify-center">
         {chartData.length > 0 ? (
           <div className="relative w-48 h-48">
-            {/* 3D Shadow Effect */}
-            <div className="absolute top-2 left-2 w-full h-full">
-              <svg
-                className="w-full h-full transform -rotate-90"
-                viewBox="0 0 120 120"
-              >
-                {(() => {
-                  let currentAngle = 0;
-                  const shadowColors = [
-                    "#4C1D95",
-                    "#5B21B6",
-                    "#6D28D9",
-                    "#7C3AED",
-                    "#8B5CF6",
-                  ];
-
-                  return chartData.map((item, idx) => {
-                    if (item.percentage === 0) return null;
-
-                    const startAngle = currentAngle;
-                    const angle = (item.percentage / 100) * 360;
-                    const endAngle = startAngle + angle;
-
-                    const startAngleRad = (startAngle * Math.PI) / 180;
-                    const endAngleRad = (endAngle * Math.PI) / 180;
-
-                    const outerRadius = 45;
-                    const innerRadius = 20;
-
-                    const x1 = 60 + outerRadius * Math.cos(startAngleRad);
-                    const y1 = 60 + outerRadius * Math.sin(startAngleRad);
-                    const x2 = 60 + outerRadius * Math.cos(endAngleRad);
-                    const y2 = 60 + outerRadius * Math.sin(endAngleRad);
-
-                    const x3 = 60 + innerRadius * Math.cos(endAngleRad);
-                    const y3 = 60 + innerRadius * Math.sin(endAngleRad);
-                    const x4 = 60 + innerRadius * Math.cos(startAngleRad);
-                    const y4 = 60 + innerRadius * Math.sin(startAngleRad);
-
-                    const largeArcFlag = angle > 180 ? 1 : 0;
-
-                    const pathData = [
-                      `M ${x1} ${y1}`,
-                      `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                      `L ${x3} ${y3}`,
-                      `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,
-                      "Z",
-                    ].join(" ");
-
-                    currentAngle = endAngle;
-
-                    return (
-                      <path
-                        key={idx}
-                        d={pathData}
-                        fill={shadowColors[idx % shadowColors.length]}
-                        opacity="0.3"
-                      />
-                    );
-                  });
-                })()}
-              </svg>
-            </div>
-
-            {/* Main Chart */}
-            <div className="relative z-10">
-              <svg
-                className="w-full h-full transform -rotate-90"
-                viewBox="0 0 120 120"
-              >
-                <defs>
+            <ResponsiveContainer width={192} height={192}>
+              <RePieChart>
+                <Pie
+                  data={chartData.map((c) => ({
+                    name: c.label,
+                    value: c.value,
+                  }))}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={40}
+                  outerRadius={72}
+                  startAngle={-90}
+                  endAngle={270}
+                  paddingAngle={2}
+                >
                   {chartData.map((_, idx) => (
-                    <linearGradient
-                      key={idx}
-                      id={`gradient-${idx}`}
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="100%"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor={
-                          [
-                            "#A855F7",
-                            "#C084FC",
-                            "#DDD6FE",
-                            "#F3E8FF",
-                            "#FAF5FF",
-                          ][idx % 5]
-                        }
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor={
-                          [
-                            "#7C3AED",
-                            "#A855F7",
-                            "#C084FC",
-                            "#DDD6FE",
-                            "#F3E8FF",
-                          ][idx % 5]
-                        }
-                      />
-                    </linearGradient>
+                    <Cell
+                      key={`cell-${idx}`}
+                      fill={
+                        ["#A855F7", "#C084FC", "#DDD6FE", "#F3E8FF", "#FAF5FF"][
+                          idx % 5
+                        ]
+                      }
+                    />
                   ))}
-                </defs>
+                </Pie>
+              </RePieChart>
+            </ResponsiveContainer>
 
-                {(() => {
-                  let currentAngle = 0;
-
-                  return chartData.map((item, idx) => {
-                    if (item.percentage === 0) return null;
-
-                    const startAngle = currentAngle;
-                    const angle = (item.percentage / 100) * 360;
-                    const endAngle = startAngle + angle;
-
-                    const startAngleRad = (startAngle * Math.PI) / 180;
-                    const endAngleRad = (endAngle * Math.PI) / 180;
-
-                    const outerRadius = 45;
-                    const innerRadius = 20;
-
-                    const x1 = 60 + outerRadius * Math.cos(startAngleRad);
-                    const y1 = 60 + outerRadius * Math.sin(startAngleRad);
-                    const x2 = 60 + outerRadius * Math.cos(endAngleRad);
-                    const y2 = 60 + outerRadius * Math.sin(endAngleRad);
-
-                    const x3 = 60 + innerRadius * Math.cos(endAngleRad);
-                    const y3 = 60 + innerRadius * Math.sin(endAngleRad);
-                    const x4 = 60 + innerRadius * Math.cos(startAngleRad);
-                    const y4 = 60 + innerRadius * Math.sin(startAngleRad);
-
-                    const largeArcFlag = angle > 180 ? 1 : 0;
-
-                    const pathData = [
-                      `M ${x1} ${y1}`,
-                      `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                      `L ${x3} ${y3}`,
-                      `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,
-                      "Z",
-                    ].join(" ");
-
-                    currentAngle = endAngle;
-
-                    return (
-                      <g key={idx}>
-                        <path
-                          d={pathData}
-                          fill={`url(#gradient-${idx})`}
-                          className="hover:opacity-90 transition-all duration-300 hover:scale-105 cursor-pointer"
-                          stroke="white"
-                          strokeWidth="2"
-                          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
-                          style={{
-                            transformOrigin: "60px 60px",
-                          }}
-                        />
-                      </g>
-                    );
-                  });
-                })()}
-              </svg>
-            </div>
-
-            {/* Center Content */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-20 h-20 bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-md rounded-full flex flex-col items-center justify-center border-2 border-white/50 shadow-lg">
                 <span className="text-lg font-bold text-purple-700">
@@ -224,7 +143,6 @@ export function PieChart({ chartData, responses }: PieChartProps) {
               </div>
             </div>
 
-            {/* Floating Labels */}
             {chartData.map((item, idx) => {
               if (item.percentage === 0) return null;
 
@@ -264,7 +182,6 @@ export function PieChart({ chartData, responses }: PieChartProps) {
         )}
       </div>
 
-      {/* Enhanced Legend */}
       {chartData.length > 0 && (
         <div className="mt-6 space-y-3">
           {chartData.map((item, idx) => (
