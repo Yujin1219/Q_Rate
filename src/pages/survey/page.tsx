@@ -141,6 +141,22 @@ export default function SurveyPage() {
     allResponses.push(responseData);
     localStorage.setItem(`responses_${id}`, JSON.stringify(allResponses));
 
+    // 마이페이지용 응답한 설문 목록에 추가
+    const myResponsesString = localStorage.getItem('myResponses');
+    const myResponses = myResponsesString ? JSON.parse(myResponsesString) : [];
+
+    // 이미 응답한 설문인지 확인 (중복 방지)
+    const alreadyResponded = myResponses.some((r: any) => r.id === id);
+
+    if (!alreadyResponded) {
+      myResponses.push({
+        id: id,
+        title: survey.title,
+        respondedAt: new Date().toISOString().split('T')[0] // YYYY-MM-DD 형식
+      });
+      localStorage.setItem('myResponses', JSON.stringify(myResponses));
+    }
+
     setIsSubmitted(true);
   };
 
