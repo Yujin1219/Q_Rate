@@ -58,6 +58,19 @@ export default function QuestionEditor({
         </select>
       </div>
 
+      {/* 필수 여부 선택 */}
+      <div className="mb-4">
+        <label className="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={question.required}
+            onChange={(e) => onUpdate(question.id, 'required', e.target.checked)}
+            className="w-4 h-4 text-purple-600 border border-white/40 rounded focus:ring-2 focus:ring-purple-500/50 cursor-pointer"
+          />
+          <span className="text-sm font-medium text-gray-700">필수 응답</span>
+        </label>
+      </div>
+
       {/* 선택지 입력 */}
       {(question.type === 'radio' || question.type === 'checkbox') && (
         <div className="space-y-2">

@@ -13,6 +13,7 @@ interface Question {
   type: 'radio' | 'checkbox' | 'text'; // 질문 유형: 단일선택, 다중선택, 텍스트
   question: string;
   options: string[];
+  required: boolean; // 필수 응답 여부
 }
 
 interface Survey {
@@ -107,16 +108,23 @@ export default function SurveyPage() {
   const submitSurvey = () => {
     if (!survey || !id) return;
 
-    // 미응답 질문 검증
-    const unansweredQuestions = responses.filter(r => {
+    // 필수 문항만 검증
+    const unansweredRequired = responses.filter(r => {
+      // 해당 질문이 필수인지 확인
+      const question = survey.questions.find(q => q.id === r.questionId);
+      if (!question || !question.required) {
+        return false; // 필수가 아니면 스킵
+      }
+
+      // 필수 문항의 응답 확인
       if (Array.isArray(r.answer)) {
         return r.answer.length === 0; // 체크박스: 선택 항목 없음
       }
       return !r.answer || r.answer.trim() === ''; // 텍스트/라디오: 빈 값
     });
 
-    if (unansweredQuestions.length > 0) {
-      alert('모든 문항에 응답해주세요.');
+    if (unansweredRequired.length > 0) {
+      alert('필수 항목(*)에 응답해주세요.');
       return;
     }
 
