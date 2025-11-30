@@ -19,13 +19,13 @@ export default function ProfileCard({
 
       <div className="relative z-10">
         {/* 프로필 이미지 */}
-        <div className="flex justify-center mb-6">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden shadow-xl shadow-violet-500/30">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-400 via-purple-500 to-fuchsia-500"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-white/30 to-transparent"></div>
-            <div className="relative w-full h-full flex items-center justify-center">
-              <i className="ri-user-fill text-white text-6xl"></i>
-            </div>
+        <div className="flex justify-center mb-3">
+          <div className="relative w-32 h-32 rounded-xl overflow-hidden">
+            <img
+              src="/src/assets/default_profile.png"
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 
