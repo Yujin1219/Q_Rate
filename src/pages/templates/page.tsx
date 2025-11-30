@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/feature/Header';
 
 // 분리해 둔 데이터/타입 import
-import { templates, type Template } from './templateData';
+import { templates, type Template } from '../../data/templateData';
 
 export default function TemplatesPage() {
   const navigate = useNavigate();
