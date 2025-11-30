@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 // 메인 히어로 섹션 (소개 영역)
 export default function HeroSection() {
   return (
@@ -30,30 +28,6 @@ export default function HeroSection() {
         <p className="text-xl md:text-2xl mb-12 text-gray-700 leading-relaxed max-w-3xl mx-auto">
           Q+rate로 설문을 생성하고 실시간으로 인사이트를 얻으세요.
         </p>
-
-        {/* CTA 버튼 영역 */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* 주요 CTA 버튼 - 무료로 시작하기 */}
-          <Link
-            to="/create"
-            className="relative inline-flex items-center px-8 py-4 text-white font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 hover:scale-105 transition-all overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-
-            <i className="ri-add-circle-line mr-3 text-xl relative z-10"></i>
-            <span className="relative z-10">무료로 시작하기</span>
-          </Link>
-
-          {/* 보조 CTA 버튼 - 템플릿 둘러보기 */}
-          <Link
-            to="/templates"
-            className="relative inline-flex items-center px-8 py-4 border border-white/40 bg-white/60 backdrop-blur-xl rounded-2xl font-semibold text-violet-600 hover:bg-white/80 transition shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            <i className="ri-file-list-3-line mr-3 text-xl"></i>
-            템플릿 둘러보기
-          </Link>
-        </div>
       </div>
     </div>
   );
