@@ -1,3 +1,5 @@
+import type { Question } from "../../pages/create/page";
+
 // components/survey/QuestionEditor.tsx
 interface QuestionEditorProps {
   question: Question;
