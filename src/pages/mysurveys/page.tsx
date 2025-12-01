@@ -120,6 +120,20 @@ export default function MySurveysPage() {
     );
   };
 
+  const handleDeleteSurvey = (surveyId: string) => {
+    if (
+      !window.confirm("해당 설문을 삭제하면 복구할 수 없습니다. 삭제할까요?")
+    ) {
+      return;
+    }
+
+    const updated = surveys.filter((survey) => survey.id !== surveyId);
+    setSurveys(updated);
+    localStorage.setItem("surveys", JSON.stringify(updated));
+    localStorage.removeItem(`survey_${surveyId}`);
+    localStorage.removeItem(`responses_${surveyId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex flex-col">
       <Header />
@@ -180,10 +194,19 @@ export default function MySurveysPage() {
                           </h3>
                         </div>
 
-                        {/* 문항 수 */}
-                        <span className="px-3 py-1 rounded-full text-sm bg-white/70 border border-white/60 text-gray-700">
-                          {questionCount}문항
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          {/* 문항 수 */}
+                          <span className="px-3 py-1 rounded-full text-sm bg-white/70 border border-white/60 text-gray-700">
+                            {questionCount}문항
+                          </span>
+                          <button
+                            onClick={() => handleDeleteSurvey(survey.id)}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110"
+                            aria-label="설문 삭제"
+                          >
+                            <i className="ri-delete-bin-line text-lg"></i>
+                          </button>
+                        </div>
                       </div>
 
                       {/* 응답 수 */}
