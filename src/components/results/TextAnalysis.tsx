@@ -15,9 +15,10 @@ export function WordCloud({ textResponses }: TextAnalysisProps) {
 
   // react-d3-cloud 형식에 맞게 데이터 변환
   const data = useMemo(() => {
-    return wordCloudData.map((item) => ({
+    return wordCloudData.map((item, idx) => ({
       text: item.word,
       value: item.count || 1,
+      color: colors[idx % colors.length],
     }));
   }, [wordCloudData]);
 
@@ -48,7 +49,7 @@ export function WordCloud({ textResponses }: TextAnalysisProps) {
               const r = Math.pow(ratio(d.value), 2);
               return 6 + r * 66; // 6px ~ 72px
             }}
-            fill={(_, idx: number) => colors[idx % colors.length]} // PDF 호환 컬러
+            fill={(word: any) => word.color || colors[0]} // PDF 호환 컬러
           />
         ) : (
           <div className="text-center text-gray-500">
