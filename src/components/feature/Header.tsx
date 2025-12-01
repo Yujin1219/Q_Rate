@@ -18,9 +18,9 @@ export default function Header() {
 
   // 로그아웃 버튼 눌렀을 때 실행되는 함수
   const handleLogout = () => {
-    // 저장된 가짜 토큰 삭제
+    // 저장된 가짜 토큰 삭제, userId 삭제
     localStorage.removeItem('accessToken');
-    
+    localStorage.removeItem('userId');
     
     // 상태 업데이트 및 알림
     setIsLoggedIn(false);
