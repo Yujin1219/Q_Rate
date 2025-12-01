@@ -6,7 +6,7 @@ export default function HeroSection() {
   return (
     <div className="w-full overflow-hidden bg-gradient-to-br from-violet-100 via-purple-200 to-fuchsia-300 flex items-center justify-center min-h-[810px]">
         {/* main.png 이미지 배너 */}
-        <Fade bottom duration={1500}>
+        <Fade bottom duration={1500} delay={300}>
           <img
             src={mainImage}
             alt="Q+Rate 메인 배너"
