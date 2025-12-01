@@ -34,6 +34,8 @@ dist-ssr
 # Build output
 build
 .cache
+out
+dist
 
 # Testing
 coverage
