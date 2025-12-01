@@ -1,4 +1,4 @@
-import Fade from "react-reveal/Fade";
+import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import templateImage from "../../assets/template.png";
@@ -10,7 +10,12 @@ export default function TemplateSection() {
         {/* 이미지와 설명 텍스트 레이아웃 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* 왼쪽: 이미지 */}
-          <Fade left duration={800} delay={100}>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <div className="flex justify-center lg:justify-start">
               <img
                 src={templateImage}
@@ -18,10 +23,15 @@ export default function TemplateSection() {
                 className="w-full max-w-md rounded-3xl shadow-2xl"
               />
             </div>
-          </Fade>
+          </motion.div>
 
           {/* 오른쪽: 설명 텍스트 */}
-          <Fade right duration={800} delay={100}>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <div>
               <div className="inline-block bg-violet-100 text-violet-600 px-4 py-2 rounded-full text-sm font-semibold mb-6">
                 설문 템플릿
@@ -90,7 +100,7 @@ export default function TemplateSection() {
                 </svg>
               </Link>
             </div>
-          </Fade>
+          </motion.div>
         </div>
       </div>
     </section>
