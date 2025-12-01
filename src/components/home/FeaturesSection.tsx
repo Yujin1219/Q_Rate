@@ -4,22 +4,23 @@ export default function FeaturesSection() {
   const features = [
     {
       title: "빠른 설문 생성",
-      description: "직관적인 인터페이스로 몇 분 만에 전문적인 설문 생성.",
+      description: "직관적인 인터페이스로 몇 분 만에 전문적인 설문 생성",
       icon: "ri-flashlight-fill",
       shadow: "shadow-violet-500/20",
       gradient: "from-violet-400 via-purple-500 to-fuchsia-500",
     },
     {
       title: "실시간 분석",
-      description: "응답 데이터를 실시간 시각화하여 즉각적인 인사이트 제공.",
+      description: "응답 데이터를 실시간 시각화하여 즉각적인 인사이트 제공",
       icon: "ri-line-chart-fill",
       shadow: "shadow-purple-500/20",
       gradient: "from-purple-400 via-fuchsia-500 to-pink-500",
     },
     {
-      title: "협업 기능",
-      description: "팀원들과 함께 설문을 관리하고 결과를 쉽게 공유.",
-      icon: "ri-team-fill",
+      title: "설문 링크 공유",
+      description:
+        "원하는 사람에게 설문 링크를 손쉽게 공유하여 빠르게 의견을 수집",
+      icon: "ri-share-line",
       shadow: "shadow-fuchsia-500/20",
       gradient: "from-fuchsia-400 via-pink-500 to-rose-500",
     },
