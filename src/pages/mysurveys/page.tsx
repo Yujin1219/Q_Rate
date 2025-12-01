@@ -121,10 +121,10 @@ export default function MySurveysPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex flex-col">
       <Header />
 
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
         <PageHeader
           title="내가 만든 설문"
           description={
@@ -216,7 +216,7 @@ export default function MySurveysPage() {
             </div>
           )}
         </div>
-      </div>
+      </main>
 
       <FooterSection />
     </div>
