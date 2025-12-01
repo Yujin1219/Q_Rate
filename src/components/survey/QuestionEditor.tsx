@@ -111,10 +111,10 @@ export default function QuestionEditor({
 
       {/* 건너뛰기 설정 */}
       {(question.type === 'radio' || question.type === 'checkbox') && (
-        <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-200">
+        <div className="bg-blue-50/50 rounded-lg p-4 border border-purple-200">
           <div className="flex items-center mb-3">
-            <i className="ri-skip-forward-line text-blue-600 mr-2"></i>
-            <label className="text-sm font-medium text-blue-900">조건부 건너뛰기</label>
+            <i className="ri-skip-forward-line text-purple-600 mr-2"></i>
+            <label className="text-sm font-medium text-purple-900">조건부 건너뛰기</label>
           </div>
           
           <div className="space-y-2">
@@ -134,7 +134,7 @@ export default function QuestionEditor({
                     }
                     onUpdate(question.id, 'skipRules', Object.keys(skipRules).length > 0 ? skipRules : undefined);
                   }}
-                  className="px-3 py-1 text-xs bg-white border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="px-3 py-1 text-xs bg-white border border-purple-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
                 >
                   {index < totalQuestions - 1 ? (
                     <>
