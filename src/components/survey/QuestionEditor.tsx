@@ -4,6 +4,7 @@ import type { Question } from "../../pages/create/page";
 interface QuestionEditorProps {
   question: Question;
   index: number;
+  totalQuestions: number;
   onUpdate: (id: string, field: keyof Question, value: any) => void;
   onDelete: (id: string) => void;
   onAddOption: (questionId: string) => void;
@@ -14,6 +15,7 @@ interface QuestionEditorProps {
 export default function QuestionEditor({
   question,
   index,
+  totalQuestions,
   onUpdate,
   onDelete,
   onAddOption,
@@ -73,7 +75,7 @@ export default function QuestionEditor({
 
       {/* 선택지 입력 */}
       {(question.type === 'radio' || question.type === 'checkbox') && (
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <label className="block text-sm font-medium text-gray-700">선택지</label>
           
           {question.options.map((option, optionIndex) => (
@@ -104,6 +106,49 @@ export default function QuestionEditor({
             <i className="ri-add-line mr-2"></i>
             선택지 추가
           </button>
+        </div>
+      )}
+
+      {/* 건너뛰기 설정 */}
+      {(question.type === 'radio' || question.type === 'checkbox') && (
+        <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-200">
+          <div className="flex items-center mb-3">
+            <i className="ri-skip-forward-line text-blue-600 mr-2"></i>
+            <label className="text-sm font-medium text-blue-900">조건부 건너뛰기</label>
+          </div>
+          
+          <div className="space-y-2">
+            {question.options.map((option, optionIndex) => (
+              <div key={optionIndex} className="flex items-center gap-2">
+                <span className="text-xs text-gray-600 flex-1">
+                  선택지 {optionIndex + 1}: {option || '(선택지 입력 필요)'}
+                </span>
+                <select
+                  value={question.skipRules?.[optionIndex] ?? ''}
+                  onChange={(e) => {
+                    const skipRules = question.skipRules ? { ...question.skipRules } : {};
+                    if (e.target.value === '') {
+                      delete skipRules[optionIndex];
+                    } else {
+                      skipRules[optionIndex] = parseInt(e.target.value);
+                    }
+                    onUpdate(question.id, 'skipRules', Object.keys(skipRules).length > 0 ? skipRules : undefined);
+                  }}
+                  className="px-3 py-1 text-xs bg-white border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value="">건너뛰지 않음</option>
+                  {Array.from({ length: totalQuestions - index }).map((_, i) => {
+                    const targetQuestion = index + i + 1;
+                    return (
+                      <option key={i} value={targetQuestion}>
+                        질문 {targetQuestion}으로 이동
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

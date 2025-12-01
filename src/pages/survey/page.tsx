@@ -14,6 +14,9 @@ interface Question {
   question: string;
   options: string[];
   required: boolean; // 필수 응답 여부
+  skipRules?: {  // 건너뛰기 규칙
+    [optionIndex: number]: number;  // 선택지 인덱스 → 건너뛸 질문 번호
+  };
 }
 
 interface Survey {
@@ -168,11 +171,31 @@ export default function SurveyPage() {
     setIsSubmitted(true);
   };
 
-  // 다음 질문으로 이동
+  // 다음 질문으로 이동 (건너뛰기 규칙 적용)
   const nextQuestion = () => {
-    if (survey && currentQuestion < survey.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+    if (!survey || currentQuestion >= survey.questions.length - 1) {
+      return;
     }
+
+    const currentQ = survey.questions[currentQuestion];
+    const currentResponse = responses.find(r => r.questionId === currentQ.id);
+
+    // 건너뛰기 규칙 확인
+    if (currentQ.skipRules && currentQ.type === 'radio') {
+      const answer = currentResponse?.answer;
+      // radio는 단일 답변이므로 선택지 인덱스와 직접 매칭
+      const answerText = typeof answer === 'string' ? answer : '';
+      const optionIndex = currentQ.options.indexOf(answerText);
+
+      if (optionIndex !== -1 && currentQ.skipRules[optionIndex]) {
+        // 건너뛰기 대상 질문 번호가 있으면 해당 질문으로 이동
+        setCurrentQuestion(currentQ.skipRules[optionIndex] - 1); // 질문 번호 - 1 = 배열 인덱스
+        return;
+      }
+    }
+
+    // 건너뛰기가 없으면 다음 질문으로
+    setCurrentQuestion(currentQuestion + 1);
   };
 
   // 이전 질문으로 이동

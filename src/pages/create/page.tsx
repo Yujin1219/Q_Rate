@@ -15,6 +15,9 @@ export interface Question {
   question: string;  // 질문 내용
   options: string[];  // 선택지 배열 (객관식 문항에 사용)
   required: boolean;  // 필수 응답 여부
+  skipRules?: {  // 건너뛰기 규칙
+    [optionIndex: number]: number;  // 선택지 인덱스 → 건너뛸 질문 번호
+  };
 }
 
 
@@ -64,7 +67,8 @@ export default function CreatePage() {
       const loadedQuestions: Question[] = (parsed.questions || []).map(q => ({
         ...q,
         options: q.options && q.options.length > 0 ? q.options : [''],
-        required: q.required !== undefined ? q.required : true  // required 필드가 없으면 기본값 true
+        required: q.required !== undefined ? q.required : true,  // required 필드가 없으면 기본값 true
+        skipRules: q.skipRules || {}  // skipRules 기본값
       }));
 
       setQuestions(loadedQuestions);
@@ -87,7 +91,8 @@ export default function CreatePage() {
       type: 'radio',  // 기본값: 단일 선택
       question: '',  // 빈 질문
       options: [''],  // 빈 선택지 하나로 시작
-      required: true  // 기본값: 필수 응답
+      required: true,  // 기본값: 필수 응답
+      skipRules: {}  // 건너뛰기 규칙 초기화
     };
     // 기존 문항 배열에 새 문항 추가
     setQuestions([...questions, newQuestion]);
@@ -255,6 +260,7 @@ export default function CreatePage() {
                     key={question.id}
                     question={question}
                     index={index}
+                    totalQuestions={questions.length}
                     onUpdate={updateQuestion}
                     onDelete={deleteQuestion}
                     onAddOption={addOption}
