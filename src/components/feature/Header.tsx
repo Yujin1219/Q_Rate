@@ -1,31 +1,30 @@
-import { useEffect, useState } from 'react'; // 기능 추가
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react"; // 기능 추가
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // 로그인 상태를 기억하는 변수 (true면 로그인 중, false면 로그아웃 상태)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // 페이지 이동할 때마다 로그인 여부 검사 (감시자)
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     // 토큰이 있으면 true(로그인됨), 없으면 false(로그아웃됨)
-    setIsLoggedIn(!!token); 
+    setIsLoggedIn(!!token);
   }, [location]); // location이 바뀔 때마다 실행
 
   // 로그아웃 버튼 눌렀을 때 실행되는 함수
   const handleLogout = () => {
     // 저장된 가짜 토큰 삭제
-    localStorage.removeItem('accessToken');
-    
-    
+    localStorage.removeItem("accessToken");
+
     // 상태 업데이트 및 알림
     setIsLoggedIn(false);
-    alert('로그아웃 되었습니다.');
-    navigate('/'); // 홈으로 이동
+    alert("로그아웃 되었습니다.");
+    navigate("/"); // 홈으로 이동
   };
 
   const isActive = (path: string) => {
@@ -99,24 +98,24 @@ export default function Header() {
               <span className="relative z-10">설문 템플릿</span>
             </Link>
             <Link
-              to="/"
+              to="/my-surveys"
               className={`relative inline-flex items-center px-5 py-2.5 font-medium rounded-xl cursor-pointer whitespace-nowrap transition-all duration-500 overflow-hidden group ${
-                isActive("/")
+                isActive("/my-surveys")
                   ? "text-white shadow-lg shadow-violet-500/30"
                   : "text-gray-700 hover:text-violet-600"
               }`}
             >
-              {isActive("/") && (
+              {isActive("/my-surveys") && (
                 <>
                   <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
                 </>
               )}
-              {!isActive("/") && (
+              {!isActive("/my-surveys") && (
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               )}
               <i className="ri-bar-chart-line mr-2 relative z-10"></i>
-              <span className="relative z-10">설문 결과 보기</span>
+              <span className="relative z-10">내가 만든 설문</span>
             </Link>
           </nav>
 
@@ -143,7 +142,7 @@ export default function Header() {
                 </Link>
               </>
             ) : (
-              // 로그아웃 상태일 때 보이는 버튼 
+              // 로그아웃 상태일 때 보이는 버튼
               <Link
                 to="/login"
                 className="relative inline-flex items-center px-5 py-2.5 text-gray-700 font-medium rounded-xl cursor-pointer whitespace-nowrap transition-all duration-500 overflow-hidden group hover:text-violet-600"
