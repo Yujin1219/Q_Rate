@@ -14,6 +14,9 @@ interface Question {
   question: string;
   options: string[];
   required: boolean; // 필수 응답 여부
+  skipRules?: {  // 건너뛰기 규칙
+    [optionIndex: number]: number;  // 선택지 인덱스 → 건너뛸 질문 번호
+  };
 }
 
 interface Survey {
@@ -168,18 +171,89 @@ export default function SurveyPage() {
     setIsSubmitted(true);
   };
 
-  // 다음 질문으로 이동
+  // 다음 질문으로 이동 (건너뛰기 규칙 적용)
   const nextQuestion = () => {
-    if (survey && currentQuestion < survey.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+    if (!survey || currentQuestion >= survey.questions.length - 1) {
+      return;
     }
+
+    const currentQ = survey.questions[currentQuestion];
+    const currentResponse = responses.find(r => r.questionId === currentQ.id);
+    const answer = currentResponse?.answer;
+
+    // 건너뛰기 규칙 확인 (radio/checkbox 모두 지원)
+    if (currentQ.skipRules && (currentQ.type === 'radio' || currentQ.type === 'checkbox')) {
+      let optionIndex = -1;
+
+      if (currentQ.type === 'radio' && typeof answer === 'string') {
+        // radio: 선택한 선택지의 인덱스 찾기
+        optionIndex = currentQ.options.indexOf(answer);
+      } else if (currentQ.type === 'checkbox' && Array.isArray(answer) && answer.length > 0) {
+        // checkbox: 첫 번째 선택항목의 인덱스 찾기
+        optionIndex = currentQ.options.indexOf(answer[0]);
+      }
+
+      // 건너뛰기 규칙이 있으면 적용
+      if (optionIndex !== -1 && currentQ.skipRules[optionIndex]) {
+        const targetQuestion = currentQ.skipRules[optionIndex];
+        // 유효한 질문 번호인지 확인
+        if (targetQuestion > 0 && targetQuestion <= survey.questions.length) {
+          setCurrentQuestion(targetQuestion - 1); // 질문 번호 - 1 = 배열 인덱스
+          return;
+        }
+      }
+    }
+
+    // 건너뛰기가 없으면 다음 질문으로
+    setCurrentQuestion(currentQuestion + 1);
   };
 
-  // 이전 질문으로 이동
+  // 이전 질문으로 이동 (건너뛰기 규칙 역순 적용)
   const prevQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+    if (!survey || currentQuestion <= 0) {
+      return;
     }
+
+    let targetIndex = currentQuestion - 1;
+
+    // 현재 위치에서 역으로 가면서 건너뛰어진 질문 찾기
+    while (targetIndex >= 0) {
+      const targetQ = survey.questions[targetIndex];
+      
+      // targetQ가 현재 질문으로 건너뜬 것인지 확인
+      let isSkippedTo = false;
+      
+      if (targetQ.skipRules && (targetQ.type === 'radio' || targetQ.type === 'checkbox')) {
+        const targetResponse = responses.find(r => r.questionId === targetQ.id);
+        const answer = targetResponse?.answer;
+        let optionIndex = -1;
+
+        if (targetQ.type === 'radio' && typeof answer === 'string') {
+          optionIndex = targetQ.options.indexOf(answer);
+        } else if (targetQ.type === 'checkbox' && Array.isArray(answer) && answer.length > 0) {
+          optionIndex = targetQ.options.indexOf(answer[0]);
+        }
+
+        // 이 질문의 답변에 따라 현재 위치로 건너뛰었는지 확인
+        if (optionIndex !== -1 && targetQ.skipRules[optionIndex]) {
+          const skippedTarget = targetQ.skipRules[optionIndex];
+          if (skippedTarget === currentQuestion + 1) {
+            // 맞으면 이 질문으로 이동
+            isSkippedTo = true;
+          }
+        }
+      }
+
+      if (isSkippedTo) {
+        setCurrentQuestion(targetIndex);
+        return;
+      }
+
+      targetIndex--;
+    }
+
+    // 건너뛰기 규칙이 없으면 그냥 이전 질문으로
+    setCurrentQuestion(currentQuestion - 1);
   };
 
   // 설문을 찾을 수 없는 경우
