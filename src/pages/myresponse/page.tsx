@@ -24,6 +24,7 @@ interface Response {
 interface ResponseData {
   surveyId: string;
   responses: Response[];
+  responderId: string;
   submittedAt: string;
 }
 
@@ -52,13 +53,14 @@ export default function MyResponsePage() {
         const responsedSurvey = myResponses.find((r: any) => r.id === id);
 
         if (responsedSurvey) {
-          // 실제 응답 데이터 가져오기
+      // 실제 응답 데이터 가져오기
           const savedResponses = localStorage.getItem(`responses_${id}`);
           if (savedResponses) {
             const allResponses: ResponseData[] = JSON.parse(savedResponses);
-            // 가장 최근 응답 사용 (추후 사용자별로 필터링 가능)
-            if (allResponses.length > 0) {
-              setMyResponse(allResponses[allResponses.length - 1]);
+            // 현재 로그인한 사용자의 응답만 찾기
+            const userResponse = allResponses.find(r => r.responderId === userEmail);
+            if (userResponse) {
+              setMyResponse(userResponse);
             }
           }
         }

@@ -38,6 +38,7 @@ interface ResponseData {
     gender: string;  // 성별
     age: string;     // 나이대
   };
+  responderId: string; // 응답자 ID (email)
   submittedAt: string;
 }
 
@@ -143,6 +144,7 @@ export default function SurveyPage() {
         gender: userInfo?.gender || '미지정',
         age: userInfo?.age || '미지정'
       },
+      responderId: userInfo?.email || '미지정',
       submittedAt: new Date().toISOString()
     };
 
@@ -184,12 +186,13 @@ export default function SurveyPage() {
     const myResponses = myResponsesString ? JSON.parse(myResponsesString) : [];
 
     // 이미 응답한 설문인지 확인 (중복 방지)
-    const alreadyResponded = myResponses.some((r: any) => r.id === id);
+    const alreadyResponded = myResponses.some((r: any) => r.id === id && r.responderId === userInfo?.email);
 
     if (!alreadyResponded) {
       myResponses.push({
         id: id,
         title: survey.title,
+        responderId: userInfo?.email || '미지정',
         respondedAt: new Date().toISOString().split('T')[0] // YYYY-MM-DD 형식
       });
       localStorage.setItem('myResponses', JSON.stringify(myResponses));

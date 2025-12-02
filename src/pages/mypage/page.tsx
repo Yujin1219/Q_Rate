@@ -17,35 +17,20 @@ interface UserInfo {
 interface RespondedSurvey {
   id: string;
   title: string;
+  responderId: string;
   respondedAt: string;
 }
 
 export default function MyPage() {
   const [userInfo, setUserInfo] = useState<UserInfo>({
-    name: '유진',
-    email: 'jin@gmail.com',
-    gender: '여성',
-    age: '19-24',
-    joinDate: '2025-11-01'
+    name: '',
+    email: '',
+    gender: '',
+    age: '',
+    joinDate: ''
   });
 
-  const [respondedSurveys, setRespondedSurveys] = useState<RespondedSurvey[]>([
-    {
-      id: '1',
-      title: '고객 만족도 조사',
-      respondedAt: '2025-11-20'
-    },
-    {
-      id: '2',
-      title: '제품 피드백 설문',
-      respondedAt: '2025-11-18'
-    },
-    {
-      id: '3',
-      title: '서비스 개선 의견 수집',
-      respondedAt: '2025-11-15'
-    }
-  ]);
+  const [respondedSurveys, setRespondedSurveys] = useState<RespondedSurvey[]>([]);
 
   const [createdSurveyCount, setCreatedSurveyCount] = useState(0);
 
@@ -68,12 +53,20 @@ export default function MyPage() {
           console.error('설문 목록 파싱 오류:', err);
         }
       }
-    }
 
-    // 응답한 설문 목록 불러오기
-    const savedResponses = localStorage.getItem('myResponses');
-    if (savedResponses) {
-      setRespondedSurveys(JSON.parse(savedResponses));
+      // 응답한 설문 목록 불러오기 (로그인한 사용자의 것만)
+      const savedResponses = localStorage.getItem('myResponses');
+      if (savedResponses) {
+        try {
+          const allResponses = JSON.parse(savedResponses);
+          const userEmail = parsed.email;
+          // 현재 로그인한 사용자의 응답만 필터링
+          const filteredResponses = allResponses.filter((response: any) => response.responderId === userEmail);
+          setRespondedSurveys(filteredResponses);
+        } catch (err) {
+          console.error('응답 목록 파싱 오류:', err);
+        }
+      }
     }
   }, []);
 
