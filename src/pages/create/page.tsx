@@ -1,6 +1,6 @@
 // React의 상태 관리 hook과 라우팅 hook을 import
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link, useLocation } from 'react-router-dom';
 import Header from '../../components/feature/Header';
 import PageHeader from '../../components/feature/PageHeader';
 import SurveyTitleInput from '../../components/survey/SurveyTitleInput';
@@ -34,8 +34,14 @@ export default function CreatePage() {
   // 페이지 이동을 위한 navigate 함수
   const navigate = useNavigate();  
   
+  // 현재 location 감시
+  const location = useLocation();
+  
   // 🔹 URL 쿼리스트링(?) 읽기 위한 훅 (예: /create?template=123)
   const [searchParams] = useSearchParams();
+  
+  // 로그인 여부 상태
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // 설문 제목 상태 관리
   const [surveyTitle, setSurveyTitle] = useState('');
@@ -48,6 +54,13 @@ export default function CreatePage() {
   
   // 생성된 설문 ID (모달에 전달용)
   const [createdSurveyId, setCreatedSurveyId] = useState<string>('');
+
+  // 🔹 로그인 여부 확인
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const isLogged = !!token;
+    setIsLoggedIn(isLogged);
+  }, [location]); // location 변경 시마다 확인
 
   // 🔹 템플릿에서 넘어온 설문 불러오기
   useEffect(() => {
@@ -224,55 +237,85 @@ export default function CreatePage() {
 
   return (
     // 전체 페이지 컨테이너 - 보라색 그라데이션 배경
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-100 flex flex-col">
       <Header />
-      <div className="py-8 px-4 lg:px-8">
+      
+      <main className="flex-1 py-12 px-4 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <PageHeader
-          title="새 설문 만들기"
-          description="설문 제목과 문항을 추가하여 설문을 생성하세요"
-          actions={
-            <button
-              onClick={saveSurvey}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
-            >
-              <i className="ri-save-line mr-2"></i>
-              저장하기
-            </button>
-          }
-        />
-          {/* 2열 그리드 레이아웃: 편집 패널 / 미리보기 패널 */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* 왼쪽: 편집 패널 */}
-            <div className="space-y-6">
-              {/* 설문 제목 입력 섹션 */}
-              <div className="space-y-6">
-              <SurveyTitleInput 
-                value={surveyTitle} 
-                onChange={setSurveyTitle} 
-              />
-
-              {/* 문항 목록 섹션 */}
-              <div className="space-y-4">
-                {/* 각 문항을 순회하며 렌더링 */}
-                {questions.map((question, index) => (
-                  <QuestionEditor
-                    key={question.id}
-                    question={question}
-                    index={index}
-                    totalQuestions={questions.length}
-                    onUpdate={updateQuestion}
-                    onDelete={deleteQuestion}
-                    onAddOption={addOption}
-                    onUpdateOption={updateOption}
-                    onRemoveOption={removeOption}
-                  />
-                ))}
-
-                {/* 새 문항 추가 버튼 */}
+            title="새 설문 만들기"
+            description={
+              isLoggedIn 
+                ? "설문 제목과 문항을 추가하여 설문을 생성하세요"
+                : "로그인 후 설문을 생성할 수 있습니다."
+            }
+            actions={
+              isLoggedIn ? (
                 <button
-                  onClick={addQuestion}
-                  className="w-full py-4 bg-white/20 backdrop-blur-md hover:bg-white/30 text-purple-700 font-medium rounded-2xl cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/30 border-dashed"
+                  onClick={saveSurvey}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/80 to-violet-600/80 backdrop-blur-sm hover:from-purple-600/90 hover:to-violet-700/90 text-white font-medium rounded-full cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/20"
+                >
+                  <i className="ri-save-line mr-2"></i>
+                  저장하기
+                </button>
+              ) : undefined
+            }
+          />
+        </div>
+
+        {!isLoggedIn ? (
+          <div className="max-w-6xl mx-auto mt-6">
+            <div className="relative backdrop-blur-xl bg-white/70 rounded-3xl p-12 text-center border border-white/40 shadow-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent"></div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                로그인 후 이용 가능합니다
+              </h3>
+              <p className="text-gray-600 mb-8 text-lg">
+                설문을 생성하려면 먼저 로그인해주세요.
+              </p>
+              <div className="flex justify-center">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition relative overflow-hidden"
+                >
+                  <span className="relative z-10">로그인 하러가기</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto">
+            {/* 2열 그리드 레이아웃: 편집 패널 / 미리보기 패널 */}
+            <div className="grid lg:grid-cols-2 gap-8">
+          {/* 왼쪽: 편집 패널 */}
+          <div className="space-y-6">
+            {/* 설문 제목 입력 섹션 */}
+            <div className="space-y-6">              <SurveyTitleInput 
+              value={surveyTitle} 
+              onChange={setSurveyTitle} 
+            />
+
+            {/* 문항 목록 섹션 */}
+            <div className="space-y-4">
+              {/* 각 문항을 순회하며 렌더링 */}
+              {questions.map((question, index) => (
+                <QuestionEditor
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  totalQuestions={questions.length}
+                  onUpdate={updateQuestion}
+                  onDelete={deleteQuestion}
+                  onAddOption={addOption}
+                  onUpdateOption={updateOption}
+                  onRemoveOption={removeOption}
+                />
+              ))}
+
+              {/* 새 문항 추가 버튼 */}
+              <button
+                onClick={addQuestion}
+                className="w-full py-4 bg-white/20 backdrop-blur-md hover:bg-white/30 text-purple-700 font-medium rounded-2xl cursor-pointer whitespace-nowrap transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-white/30 border-dashed"
                 >
                   <i className="ri-add-circle-line mr-2 text-xl"></i>
                   새 문항 추가
@@ -299,8 +342,9 @@ export default function CreatePage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+            </div>
+          )}
+      </main>
 
       {/* 설문 공유 모달 */}
       <SurveyShareModal
