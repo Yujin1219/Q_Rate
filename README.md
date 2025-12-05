@@ -1,10 +1,11 @@
-# 📊 웹프레임워크1 프로젝트 - Q+Rate
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/16c1131b-f272-46f3-9691-25d6a23ce3e6" />
 
 ## 📋 프로젝트 개요
 Q+Rate는 **온라인 설문조사 플랫폼**으로, 사용자가 손쉽게 설문을 작성하고 공유하며 응답을 수집할 수 있는 웹 애플리케이션입니다.
 **70개 이상의 템플릿**과 **고급 분석 기능**을 제공하여 누구나 전문적인 설문조사를 진행할 수 있습니다.
 
 ### 🎯 주요 기능
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/55d45c1f-d772-45f9-92eb-9eb8ba1f3093" />
 
 #### 📝 설문 생성
 - **다양한 질문 유형**: 라디오, 체크박스, 텍스트 질문 지원
