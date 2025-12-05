@@ -29,112 +29,110 @@ Q+Rate는 **온라인 설문조사 플랫폼**으로, 사용자가 손쉽게 설
 - **반응형 디자인**: 모바일, 태블릿, 데스크톱 완벽 대응
 
 &nbsp;
-## 🚀 실행 환경
+## 📝 주요 기능 설명
 
-### 요구사항
-- **Node.js**: v18 이상
-- **npm**: v9 이상
+### 1. 설문 생성
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3f74cf3a-2293-4e2b-beee-3f7276b650d1" />
+<details>
+  <summary>상세 설명</summary>
+  
+  - **설문 제목 및 설명** 입력
+  - **질문 추가/삭제/수정**
+  - 라디오 버튼 (단일 선택)
+  - 체크박스 (다중 선택)
+  - 텍스트 (주관식)
+- **필수/선택 지정**: 질문별 `required` 플래그
+- **조건부 분기 (Skip Rules)**
+  - 특정 선택지 선택 시 다음 질문으로 건너뛰기
+  - 예: "만족하십니까?" → "아니오" 선택 → 불만족 이유 질문으로 이동
+- **실시간 미리보기**: 편집과 동시에 설문 화면 확인
+- **템플릿 사용**: 70+ 템플릿 중 선택하여 빠른 시작
+</details>
 
-### 설치 및 실행 방법
+### 2. 설문 템플릿 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/80c0a5ed-bdf5-4e91-8c78-213d777bfd3b" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ae8c02e1-e156-406a-8749-312645300e7c" />
 
-#### 1️⃣ 의존성 설치
-```bash
-npm install
-```
+<details>
+  <summary>상세 설명</summary>
+  
+  - **70개 이상의 전문 템플릿** 제공
+  - **13개 카테고리**: 비즈니스, 이벤트, 리서치, HR, 교육, 헬스케어, 소매/유통, 외식/서비스, 기술/IT, 커뮤니티, 정부/공공, 금융/보험, 여행/숙박, ESG/사회공헌, 크리에이티브
+  - **원클릭 사용**: 템플릿 클릭 시 설문 생성 페이지로 자동 로드
+</details>
 
-#### 2️⃣ 개발 서버 실행
-```bash
-npm run dev
-```
-- 개발 서버가 `http://localhost:3000`에서 실행됩니다.
-- 핫 리로드 기능으로 파일 변경 시 자동으로 브라우저가 새로고침됩니다.
+### 3. 설문 공유 및 응답
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2710465-40c5-4fbc-8650-2b4f3c62625d" />
 
-#### 3️⃣ 프로덕션 빌드
-```bash
-npm run build
-```
-- 최적화된 프로덕션 빌드가 `out/` 디렉토리에 생성됩니다.
-- 소스맵이 포함되어 디버깅이 용이합니다.
+<details>
+  <summary>상세 설명</summary>
+  
+  #### 설문 공유
+  - **링크 복사**: 클립보드에 설문 URL 복사
+  - **설문 코드**: 고유 ID로 설문 식별
 
-#### 4️⃣ 빌드 결과물 미리보기
-```bash
-npm run preview
-```
-- 로컬에서 프로덕션 빌드된 파일을 미리볼 수 있습니다.
+  #### 설문 응답
+  - **동적 질문 이동**: Skip Rules에 따른 조건부 분기
+  - **진행률 표시**: 현재 진행 상황을 시각적으로 표시
+  - **필수 질문 검증**: 필수 질문 미응답 시 다음으로 이동 불가
+  - **이전 버튼**: 건너뛴 질문 포함 정확한 역추적
+  - **응답 저장**: LocalStorage에 실시간 저장
+  - **완료 화면**: 제출 성공 메시지 및 결과 보기 링크
+</details>
 
-&nbsp;
-## 📁 프로젝트 구조
+### 4. 결과 분석 및 시각화
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e058ab6a-4f59-4c83-8813-a78d88fed36f" />
+<details>
+  <summary>상세 설명</summary>
 
-```
-src/
-├── assets/                     # 이미지 리소스
-│   ├── default_profile.png     # 기본 프로필 이미지
-│   ├── logo.png                # 로고
-│   └── ...
-│
-├── components/                 # 재사용 가능한 UI 컴포넌트
-│   ├── ScrollToTop.tsx         # 페이지 이동 시 스크롤 초기화
-│   ├── feature/                # 공통 기능 컴포넌트
-│   │   ├── Header.tsx          # 전역 헤더 (로그인/로그아웃)
-│   │   └── PageHeader.tsx      # 페이지별 헤더
-│   ├── home/                   # 홈 페이지 섹션
-│   │   ├── HeroSection.tsx
-│   │   ├── FeaturesSection.tsx
-│   │   ├── TemplateSection.tsx
-│   │   └── ...
-│   ├── mypage/                 # 마이페이지 컴포넌트
-│   │   ├── ProfileCard.tsx
-│   │   ├── UserInfoForm.tsx
-│   │   └── RespondedSurveyList.tsx
-│   ├── mysurveys/
-│   │   └── DeleteConfirmModal.tsx
-│   ├── results/                # 결과 분석 컴포넌트
-│   │   ├── Charts.tsx          # 막대/원형 차트
-│   │   ├── TextAnalysis.tsx    # 워드클라우드, 감정분석
-│   │   └── ...
-│   └── survey/                 # 설문 작성/응답 컴포넌트
-│       ├── QuestionEditor.tsx
-│       ├── SurveyPreview.tsx
-│       ├── RadioQuestion.tsx
-│       ├── CheckboxQuestion.tsx
-│       ├── TextQuestion.tsx
-│       └── ...
-│
-├── pages/                      # 페이지 컴포넌트
-│   ├── NotFound.tsx            # 404 페이지
-│   ├── home/page.tsx           # 홈 (랜딩)
-│   ├── login/page.tsx          # 로그인
-│   ├── signup/page.tsx         # 회원가입
-│   ├── create/page.tsx         # 설문 생성/편집
-│   ├── templates/page.tsx      # 템플릿 목록
-│   ├── survey/page.tsx         # 설문 응답
-│   ├── results/page.tsx        # 설문 결과 분석
-│   ├── mypage/page.tsx         # 마이페이지
-│   ├── mysurveys/page.tsx      # 내가 만든 설문
-│   └── myresponse/page.tsx     # 내 응답 내역
-│
-├── router/                     # 라우팅 설정
-│   ├── config.tsx              # 라우트 정의
-│   └── index.ts
-│
-├── types/                      # TypeScript 타입 정의
-│   └── survey.ts               # Survey, Question, Response 타입
-│
-├── utils/                      # 유틸리티 함수
-│   ├── calculateChartData.ts   # 차트 데이터 계산
-│   ├── calculateSentiment.ts   # 감정 분석 로직
-│   └── generateWordCloud.ts    # 워드클라우드 생성
-│
-├── data/                       # 데이터
-│   ├── sampleSurveys.ts        # 샘플 설문
-│   └── templateData.ts         # 70+ 템플릿 (13개 카테고리)
-│
-├── i18n/                       # 국제화 설정 (다국어 지원 준비)
-│
-├── App.tsx                     # 메인 앱 컴포넌트
-├── main.tsx                    # 엔트리 포인트
-└── index.css                   # 전역 스타일
-```
+  #### 객관식 질문 (라디오, 체크박스)
+  - **막대 그래프** ([BarChart](src/components/results/Charts.tsx))
+  - **원형 그래프** ([PieChart](src/components/results/Charts.tsx))
+  - **상세 통계** ([Statistics](src/components/results/Charts.tsx))
+  - 선택지별 응답 수, 비율, 퍼센트
+
+#### 주관식 질문 (텍스트)
+  - **워드클라우드** ([generateWordCloud](src/utils/generateWordCloud.ts))
+    - 단어 빈도 시각화
+  - **감정 분석** ([calculateSentiment](src/utils/calculateSentiment.ts))
+    - 긍정/부정/중립 비율 분석
+    - 한국어 감정 키워드 기반
+  - **최근 응답**: 최신 응답 5개 표시
+
+#### 응답 개요
+  - 총 응답 수
+  - 질문별 상세 통계
+  - 응답 시간 정보
+</details>
+
+### 5. 로그인/회원가입
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dd9d0544-51d4-4234-a875-9752191f309b" />
+
+### 6. 마이페이지
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/0e037bff-4a2a-4674-b738-934f5733d3aa" />
+
+<details>
+  <summary>상세 설명</summary>
+
+  - **프로필 정보**: 이름, 이메일, 가입일
+  - **활동 통계**: 응답한 설문 수, 생성한 설문 수
+  - **정보 수정**: 이름, 성별, 연령대 수정
+  - **응답 내역**: 내가 응답한 설문 목록 및 상세보기
+</details>
+
+### 7. 내가 만든 설문
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/39a5431c-5361-4051-bde7-cf5776caa941" />
+
+<details>
+  <summary>상세 설명</summary>
+
+  - **설문 목록**: 로그인한 사용자가 생성한 설문만 표시
+  - **응답 현황**: 각 설문의 응답 수
+  - **설문 관리**
+    - 설문 열기: 설문 응답 페이지로 이동
+    - 결과 보기: 설문 결과 분석 페이지로 이동
+    - 설문 삭제: 확인 모달 후 삭제
+</details>
 
 &nbsp;
 ## 🛠 기술 스택
@@ -174,300 +172,6 @@ src/
 - **React Hooks** (useState, useEffect, useMemo, useCallback)
 - **LocalStorage** (사용자 정보, 설문 데이터, 응답 데이터)
 
-&nbsp;
-## 📚 주요 라이브러리 설치 및 사용 방법
-
-### 1. React & TypeScript
-프로젝트의 핵심 프레임워크입니다.
-```bash
-npm install react react-dom
-npm install --save-dev @types/react @types/react-dom typescript
-```
-
-### 2. Vite (빌드 도구)
-빠른 개발 서버와 최적화된 프로덕션 빌드를 제공합니다.
-```bash
-npm install --save-dev vite @vitejs/plugin-react-swc
-```
-
-**사용 방법:**
-```bash
-# 개발 서버 실행
-npm run dev
-
-# 프로덕션 빌드
-npm run build
-
-# 빌드 미리보기
-npm run preview
-```
-
-### 3. React Router DOM (라우팅)
-페이지 간 네비게이션을 관리합니다.
-```bash
-npm install react-router-dom
-```
-
-### 4. Tailwind CSS (스타일링)
-유틸리티 우선 CSS 프레임워크입니다.
-```bash
-npm install --save-dev tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-```
-
-### 5. Framer Motion (애니메이션)
-고급 애니메이션 효과를 구현합니다.
-```bash
-npm install framer-motion
-```
-
-### 6. Recharts (차트)
-응답 결과를 시각화하는 차트 라이브러리입니다.
-```bash
-npm install recharts
-```
-
-### 7. React D3 Cloud (워드클라우드)
-텍스트 응답을 워드클라우드로 시각화합니다.
-```bash
-npm install react-d3-cloud d3-cloud
-```
-
-### 8. jsPDF & html2canvas (PDF 내보내기)
-설문 결과를 PDF로 저장합니다.
-```bash
-npm install jspdf html2canvas
-```
-
-### 9. Lucide React (아이콘)
-모던한 아이콘 세트를 제공합니다.
-```bash
-npm install lucide-react
-```
-
-### 10. i18next (다국어 지원)
-다국어 지원 기능을 구현합니다.
-```bash
-npm install i18next react-i18next i18next-browser-languagedetector
-```
-
-### 11. ESLint (코드 품질 관리)
-코드 스타일과 오류를 검사합니다.
-```bash
-npm install --save-dev eslint @eslint/js eslint-plugin-react-hooks eslint-plugin-react-refresh typescript-eslint
-```
-
-### ※ 모든 라이브러리 한 번에 설치
-프로젝트 최초 설정 시 `package.json`이 있는 경우:
-```bash
-npm install
-```
-
-이 명령어는 `package.json`에 정의된 모든 의존성을 자동으로 설치합니다.
-
-
-&nbsp;
-## 📝 주요 기능 설명
-
-### 1. 설문 작성 ([/create](src/pages/create/page.tsx))
-- **설문 제목 및 설명** 입력
-- **질문 추가/삭제/수정**
-  - 라디오 버튼 (단일 선택)
-  - 체크박스 (다중 선택)
-  - 텍스트 (주관식)
-- **필수/선택 지정**: 질문별 `required` 플래그
-- **조건부 분기 (Skip Rules)**
-  - 특정 선택지 선택 시 다음 질문으로 건너뛰기
-  - 예: "만족하십니까?" → "아니오" 선택 → 불만족 이유 질문으로 이동
-- **실시간 미리보기**: 편집과 동시에 설문 화면 확인
-- **템플릿 사용**: 70+ 템플릿 중 선택하여 빠른 시작
-
-### 2. 템플릿 ([/templates](src/pages/templates/page.tsx))
-- **70개 이상의 전문 템플릿** 제공
-- **13개 카테고리**: 비즈니스, 이벤트, 리서치, HR, 교육, 헬스케어, 소매/유통, 외식/서비스, 기술/IT, 커뮤니티, 정부/공공, 금융/보험, 여행/숙박, ESG/사회공헌, 크리에이티브
-- **원클릭 사용**: 템플릿 클릭 시 설문 생성 페이지로 자동 로드
-
-### 3. 설문 공유 ([SurveyShareModal](src/components/survey/SurveyShareModal.tsx))
-- **링크 복사**: 클립보드에 설문 URL 복사
-- **설문 코드**: 고유 ID로 설문 식별
-
-### 4. 설문 응답 ([/survey/:id](src/pages/survey/page.tsx))
-- **동적 질문 이동**: Skip Rules에 따른 조건부 분기
-- **진행률 표시**: 현재 진행 상황을 시각적으로 표시
-- **필수 질문 검증**: 필수 질문 미응답 시 다음으로 이동 불가
-- **이전 버튼**: 건너뛴 질문 포함 정확한 역추적
-- **응답 저장**: LocalStorage에 실시간 저장
-- **완료 화면**: 제출 성공 메시지 및 결과 보기 링크
-
-### 5. 결과 분석 ([/results/:id](src/pages/results/page.tsx))
-
-#### 객관식 질문 (라디오, 체크박스)
-- **막대 그래프** ([BarChart](src/components/results/Charts.tsx))
-- **원형 그래프** ([PieChart](src/components/results/Charts.tsx))
-- **상세 통계** ([Statistics](src/components/results/Charts.tsx))
-  - 선택지별 응답 수, 비율, 퍼센트
-
-#### 주관식 질문 (텍스트)
-- **워드클라우드** ([generateWordCloud](src/utils/generateWordCloud.ts))
-  - 단어 빈도 시각화
-- **감정 분석** ([calculateSentiment](src/utils/calculateSentiment.ts))
-  - 긍정/부정/중립 비율 분석
-  - 한국어 감정 키워드 기반
-- **최근 응답**: 최신 응답 5개 표시
-
-#### 응답 개요
-- 총 응답 수
-- 질문별 상세 통계
-- 응답 시간 정보
-
-### 6. 마이페이지 ([/mypage](src/pages/mypage/page.tsx))
-- **프로필 정보**: 이름, 이메일, 가입일
-- **활동 통계**: 응답한 설문 수, 생성한 설문 수
-- **정보 수정**: 이름, 성별, 연령대 수정
-- **응답 내역**: 내가 응답한 설문 목록 및 상세보기
-
-### 7. 내가 만든 설문 ([/mysurveys](src/pages/mysurveys/page.tsx))
-- **설문 목록**: 로그인한 사용자가 생성한 설문만 표시
-- **응답 현황**: 각 설문의 응답 수
-- **설문 관리**
-  - 설문 열기: 설문 응답 페이지로 이동
-  - 결과 보기: 설문 결과 분석 페이지로 이동
-  - 설문 삭제: 확인 모달 후 삭제
-
-### 8. 내 응답 내역 ([/myresponse/:id](src/pages/myresponse/page.tsx))
-- **응답 상세 보기**: 내가 응답한 설문의 상세 내용
-- **질문별 답변**: 각 질문에 대한 나의 응답 확인
-
-&nbsp;
-## 🚀 배포
-
-### Netlify 배포 설정
-이 프로젝트는 Netlify에 자동 배포되도록 설정되어 있습니다.
-
-#### 배포 설정
-- **빌드 명령**: `npm run build`
-- **배포 디렉토리**: `out/`
-- **Node 버전**: 18 이상
-- **환경 변수**: `BASE_PATH` (서브 경로 배포 시)
-
-#### 로컬에서 배포 테스트
-```bash
-# 프로덕션 빌드
-npm run build
-
-# 빌드 결과 미리보기
-npm run preview
-```
-
-&nbsp;
-## 📊 데이터 구조
-
-### LocalStorage 키
-프로젝트는 브라우저의 LocalStorage를 사용하여 데이터를 관리합니다.
-
-| 키 | 설명 | 형식 |
-|---|---|---|
-| `userInfo` | 사용자 정보 | `Array<User>` |
-| `accessToken` | 로그인 토큰 | `string` |
-| `surveys` | 전체 설문 목록 | `Array<Survey>` |
-| `survey_{id}` | 개별 설문 데이터 | `Survey` |
-| `responses_{id}` | 설문별 응답 데이터 | `Array<Response>` |
-| `myResponses` | 내 응답 목록 | `Array<MyResponse>` |
-
-### 주요 타입 정의 ([types/survey.ts](src/types/survey.ts))
-
-```typescript
-interface Survey {
-  id: string
-  title: string
-  description?: string
-  questions: Question[]
-  creatorId: string
-  createdAt: string
-}
-
-interface Question {
-  id: string
-  type: 'radio' | 'checkbox' | 'text'
-  question: string
-  options?: string[]
-  required: boolean
-  skipRules?: SkipRule[]
-}
-
-interface SkipRule {
-  optionIndex: number
-  skipToQuestionId: string
-}
-```
-
-&nbsp;
-## 🎨 디자인 시스템
-
-### 색상 팔레트
-- **Primary**: Violet-Purple-Fuchsia Gradient
-- **Background**: White with Glassmorphism effect
-- **Text**: Gray scale (900, 700, 600, 500)
-- **Accent**: Blue, Green, Red for status
-
-### 타이포그래피
-- **한글**: Pretendard
-- **영문**: Poppins
-- **로고**: Pacifico
-
-### 반응형 브레이크포인트
-- **Mobile**: < 640px
-- **Tablet**: 640px - 1024px
-- **Desktop**: ≥ 1024px
-
-&nbsp;
-## 🔄 라우팅
-
-| 경로 | 컴포넌트 | 설명 |
-|------|---------|------|
-| `/` | HomePage | 랜딩 페이지 |
-| `/login` | LoginPage | 로그인 |
-| `/signup` | SignupPage | 회원가입 |
-| `/create` | CreatePage | 설문 생성/편집 |
-| `/templates` | TemplatesPage | 템플릿 목록 |
-| `/survey/:id` | SurveyPage | 설문 응답 |
-| `/results/:id` | ResultsPage | 설문 결과 |
-| `/mypage` | MyPage | 마이페이지 |
-| `/mysurveys` | MySurveysPage | 내가 만든 설문 |
-| `/myresponse/:id` | MyResponsePage | 내 응답 상세 |
-| `*` | NotFound | 404 페이지 |
-
-&nbsp;
-## 🐛 문제 해결
-
-### npm start가 작동하지 않는 경우
-1. **캐시 초기화**
-   ```bash
-   npm cache clean --force
-   rm -rf node_modules package-lock.json
-   npm install
-   npm start
-   ```
-
-2. **포트 충돌 확인**
-   - 기본 포트 5173이 사용 중이면 Vite가 자동으로 다른 포트를 할당합니다.
-   - 콘솔 메시지를 확인하여 실제 실행 중인 포트를 확인하세요.
-
-### 모듈 에러 발생 시
-```bash
-npm install
-```
-- 최신 의존성을 설치합니다.
-
-### 빌드 에러 발생 시
-```bash
-npm run build
-```
-- 빌드 과정에서 발생하는 에러 메시지를 확인하고 수정합니다.
-
-### 로컬스토리지 초기화
-- 브라우저 개발자 도구 (F12) → Application → Local Storage → Clear All
-- 또는 브라우저 캐시 전체 삭제
 &nbsp;
 ## 📧 문의
 프로젝트 관련 문의사항은 이슈를 통해 남겨주세요.
